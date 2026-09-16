@@ -399,6 +399,8 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
 @media (max-width: 860px) { .partner-grid { grid-template-columns: 1fr; } }
 
 /* Formules */
+#partenaires { background: #ECEBE7; }
+#partenaires .offer:not(.is-featured) { background: #FFFFFF; }
 .offers { display: grid; grid-template-columns: repeat(2, minmax(0, 440px)); justify-content: center; gap: clamp(20px, 3vw, 36px); align-items: stretch; }
 .offer {
   position: relative; display: flex; flex-direction: column; align-items: center; text-align: center;
