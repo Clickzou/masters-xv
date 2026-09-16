@@ -58,6 +58,7 @@ export const OFFERS = [
     perks: [
       'Une équipe de 4 joueurs',
       'Un joueur professionnel de rugby, selon disponibilité',
+      'Reçu fiscal (CERFA)',
     ],
   },
 ]
