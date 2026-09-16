@@ -4,13 +4,15 @@ import Countdown from './components/Countdown.jsx'
 import Fairways from './components/Fairways.jsx'
 import RegistrationForm from './components/RegistrationForm.jsx'
 import SponsorsCarousel from './components/SponsorsCarousel.jsx'
+import Gallery from './components/Gallery.jsx'
+import HeroBackdrop from './components/HeroBackdrop.jsx'
 
 const NAV = [
   ['esprit', 'L’esprit'],
   ['programme', 'Programme'],
   ['formule', 'La formule'],
   ['lieu', 'Le lieu'],
-  ['partenaires', 'Partenaires'],
+  ['partenaires', 'Associez votre marque'],
 ]
 
 function Ornament() {
@@ -74,6 +76,7 @@ export default function App() {
       <main id="top">
         {/* ——— Accueil ——— */}
         <section className="hero">
+          <HeroBackdrop />
           <div className="hero-frame" aria-hidden="true" />
           <div className="hero-inner">
             <img className="hero-logo" src="/logo/masters-xv-logo-couleur.svg" alt="Masters XV – Midi Olympique Golf Tournament" width="880" height="1190" />
@@ -169,7 +172,7 @@ export default function App() {
         {/* ——— Le lieu ——— */}
         <section id="lieu" className="section green lieu">
           <div className="lieu-bg" aria-hidden="true" />
-          <div className="container lieu-grid">
+          <div className="container lieu-inner">
             <div className="lieu-text reveal" data-reveal="left">
               <p className="kicker">Le lieu</p>
               <h2>{EVENT.venue}</h2>
@@ -181,9 +184,19 @@ export default function App() {
               <p className="lieu-city">{EVENT.venueCity}</p>
               <a className="btn btn-gold" href={EVENT.mapsUrl} target="_blank" rel="noreferrer">Itinéraire</a>
             </div>
-            <div className="lieu-map reveal" data-reveal="right" style={{ '--d': '150ms' }}>
-              <iframe title={`Plan d’accès – ${EVENT.venue}`} src={EVENT.mapsEmbed} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
-            </div>
+          </div>
+        </section>
+
+        {/* ——— Plan d'accès ——— */}
+        <section className="map-band" aria-label="Plan d’accès">
+          <iframe title={`Plan d’accès – ${EVENT.venue}`} src={EVENT.mapsEmbed} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
+        </section>
+
+        {/* ——— Galerie ——— */}
+        <section id="galerie" className="section paper galerie">
+          <div className="container">
+            <SectionTitle kicker="En images" title="Le golf de Palmola en photo" />
+            <Gallery />
           </div>
         </section>
 
@@ -254,6 +267,7 @@ export default function App() {
           </p>
         )}
         <p className="footer-small">© {new Date().getFullYear()} Masters XV · Midi Olympique</p>
+        <p className="footer-credit">Création site internet par <a href="https://www.clickzou.fr/" target="_blank" rel="noopener">Clickzou</a></p>
       </footer>
     </>
   )

@@ -20,17 +20,30 @@ export const EVENT = {
   contactPhone: null,
 }
 
-// Carrousel des partenaires (au-dessus de « L'esprit »).
-// logo : fichier déposé dans public/sponsors/ (SVG ou PNG transparent), ex. '/sponsors/midi-olympique.svg'
-// Sans logo, le nom s'affiche en toutes lettres. url : lien facultatif.
-// placeholder: true → emplacement « Votre logo ici » qui renvoie vers la section Partenaires.
+// Carrousel des sponsors (au-dessus de « L'esprit »), dans l'ordre d'affichage.
+// logo : fichier dans public/sponsors/ · dark: true → logo blanc affiché sur une carte verte
 export const SPONSORS = [
-  { name: 'Midi Olympique', logo: null, url: null },
-  { name: 'Golf de Palmola', logo: null, url: null },
-  { placeholder: true },
-  { placeholder: true },
-  { placeholder: true },
-  { placeholder: true },
+  { name: 'Midi Olympique', logo: '/sponsors/midi-olympique.png', url: 'https://www.midi-olympique.fr/' },
+  { name: 'CTA Meeting & Events', logo: '/sponsors/cta-meeting-events.png', url: 'https://ctameetingevents.fr/' },
+  { name: 'Clickzou', logo: '/sponsors/clickzou.png', url: 'https://www.clickzou.fr/' },
+  { name: 'Joaillerie Piquemal Baron', logo: '/sponsors/joaillerie-piquemal-baron.png', url: 'https://www.joailleriepiquemalbaron.com/' },
+  { name: 'Intermarché Garidech', logo: '/sponsors/intermarche-garidech.png', url: 'https://www.intermarche.com/magasins/11126/garidech-31380/infos-pratiques' },
+  { name: 'Subloisirs', logo: '/sponsors/subloisirs.png', url: 'https://subloisirs.com/', dark: true },
+  { name: 'Debard Automobiles', logo: '/sponsors/debard-automobiles.png', url: 'https://www.debardautomobiles.com/' },
+  { name: 'Securinfor', logo: '/sponsors/securinfor.png', url: 'https://www.securinfor.fr/' },
+  { name: 'Le Bistro de Palmo', logo: '/sponsors/bistro-de-palmo.png', url: 'https://www.bistrodepalmo.com/' },
+  { name: 'McDonald’s', logo: '/sponsors/mcdonalds.png', url: 'https://www.mcdonalds.fr/' },
+  { name: 'Plyz', logo: '/sponsors/plyz.png', url: 'https://plyz.io/', dark: true },
+]
+
+// Galerie « Le golf de Palmola en photo » (l'ordre correspond à la mosaïque)
+export const GALLERY = [
+  { src: '/images/palmola/palmola-vue-aerienne.webp', caption: 'Le domaine vu du ciel' },
+  { src: '/images/palmola/palmola-lac.webp', caption: 'Le lac et les fairways' },
+  { src: '/images/palmola/palmola-depart-fontaine.webp', caption: 'Départ au bord de l’eau' },
+  { src: '/images/palmola/palmola-club-house.webp', caption: 'Le club-house et sa terrasse' },
+  { src: '/images/palmola/palmola-terrasse-soiree.webp', caption: 'Les soirées au club-house' },
+  { src: '/images/palmola/palmola-green-club-house.webp', caption: 'Le green du club-house' },
 ]
 
 // Formules proposées (section Partenaires et formulaire d'inscription)

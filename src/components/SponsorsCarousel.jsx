@@ -1,15 +1,12 @@
 import { SPONSORS } from '../content.js'
 
 function Sponsor({ s }) {
-  if (s.placeholder) {
-    return <a className="sponsor is-placeholder" href="#partenaires">Votre logo ici</a>
-  }
   const content = s.logo
     ? <img src={s.logo} alt={s.name} loading="lazy" />
     : <span>{s.name}</span>
   return s.url
-    ? <a className="sponsor" href={s.url} target="_blank" rel="noreferrer">{content}</a>
-    : <div className="sponsor">{content}</div>
+    ? <a className={`sponsor${s.dark ? ' is-dark' : ''}`} href={s.url} target="_blank" rel="noopener" title={s.name}>{content}</a>
+    : <div className={`sponsor${s.dark ? ' is-dark' : ''}`}>{content}</div>
 }
 
 export default function SponsorsCarousel() {
