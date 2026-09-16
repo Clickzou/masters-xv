@@ -40,6 +40,9 @@ drop trigger if exists inscriptions_touch on public.inscriptions;
 create trigger inscriptions_touch before update on public.inscriptions
 for each row execute function public.inscriptions_touch();
 
+-- Chemin de recherche figé (recommandation du linter Supabase)
+alter function public.inscriptions_touch() set search_path = '';
+
 -- Sécurité : RLS activée sans aucune politique.
 -- La table n'est donc accessible ni avec la clé publique (anon) ni depuis le navigateur :
 -- seules les fonctions serveur du site (clé service_role, jamais exposée) peuvent lire et écrire.
