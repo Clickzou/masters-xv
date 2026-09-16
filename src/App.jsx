@@ -97,11 +97,15 @@ export default function App() {
         </section>
 
         {/* ——— L'esprit ——— */}
-        <section id="esprit" className="section paper">
+        <section className="sponsors-band paper">
           <SponsorsCarousel />
+        </section>
+
+        <section id="esprit" className="section esprit">
+          <div className="esprit-bg" aria-hidden="true" />
           <div className="container">
-            <SectionTitle kicker="L’esprit Masters XV" title="Quand l’Ovalie prend le green" />
-            <p className="lead reveal">
+            <SectionTitle kicker="L’esprit Masters XV" title="Quand l’Ovalie prend le green" light />
+            <p className="lead is-light reveal">
               Ni tout à fait un tournoi de golf, ni tout à fait un rendez-vous rugby : Masters XV réunit
               les passionnés des deux univers autour de ce qu’ils partagent — l’esprit d’équipe, le respect
               et le goût de la fête.
@@ -164,6 +168,7 @@ export default function App() {
 
         {/* ——— Le lieu ——— */}
         <section id="lieu" className="section green lieu">
+          <div className="lieu-bg" aria-hidden="true" />
           <div className="container lieu-grid">
             <div className="lieu-text reveal" data-reveal="left">
               <p className="kicker">Le lieu</p>
