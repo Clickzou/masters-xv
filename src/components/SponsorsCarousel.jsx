@@ -1,4 +1,5 @@
 import { SPONSORS } from '../content.js'
+import { useT } from '../i18n.jsx'
 
 function Sponsor({ s }) {
   const content = s.logo
@@ -10,12 +11,13 @@ function Sponsor({ s }) {
 }
 
 export default function SponsorsCarousel() {
+  const t = useT()
   if (!SPONSORS.length) return null
   // Liste dupliquée pour un défilement continu sans saut
   const loop = [...SPONSORS, ...SPONSORS]
   return (
-    <div className="sponsors reveal" aria-label="Nos partenaires">
-      <p className="kicker sponsors-title">Les sponsors qui soutiennent activement Masters XV</p>
+    <div className="sponsors reveal" aria-label={t.sponsors.aria}>
+      <p className="kicker sponsors-title">{t.sponsors.title}</p>
       <div className="sponsors-viewport">
         <div className="sponsors-track" style={{ '--count': SPONSORS.length }}>
           {loop.map((s, i) => (

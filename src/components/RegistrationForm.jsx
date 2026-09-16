@@ -1,35 +1,35 @@
 import { useEffect, useState } from 'react'
-import { EVENT, OFFERS } from '../content.js'
+import { useT } from '../i18n.jsx'
 
 const INITIAL = {
   firstName: '', lastName: '', company: '', email: '', phone: '',
-  offer: OFFERS[0].id, teams: '1', players: '', needsReceipt: false, message: '', website: '',
-}
-
-const offerLabel = id => {
-  const o = OFFERS.find(x => x.id === id)
-  return o ? `${o.name} (${o.price})` : id
-}
-
-// Texte envoyé par e-mail si l'API n'est pas disponible
-function toMailBody(d) {
-  return [
-    `Nom : ${d.firstName} ${d.lastName}`,
-    `Société : ${d.company || '-'}`,
-    `E-mail : ${d.email}`,
-    `Téléphone : ${d.phone || '-'}`,
-    `Formule : ${offerLabel(d.offer)}`,
-    `Nombre d'équipes : ${d.teams}`,
-    `Joueurs : ${d.players || '-'}`,
-    `Reçu fiscal (CERFA) souhaité : ${d.needsReceipt ? 'oui' : 'non'}`,
-    '',
-    d.message,
-  ].join('\n')
+  offer: 'sponsor', teams: '1', players: '', needsReceipt: false, message: '', website: '',
 }
 
 export default function RegistrationForm() {
+  const t = useT()
+  const f = t.form
   const [data, setData] = useState(INITIAL)
   const [status, setStatus] = useState('idle') // idle | sending | sent | error
+
+  const offerLabel = id => {
+    const o = t.offers.find(x => x.id === id)
+    return o ? `${o.name} (${o.price})` : id
+  }
+
+  // Texte envoyé par e-mail si l'API n'est pas disponible
+  const toMailBody = d => [
+    `${f.lastName} : ${d.firstName} ${d.lastName}`,
+    `${f.company} : ${d.company || '-'}`,
+    `${f.email} : ${d.email}`,
+    `${f.phone} : ${d.phone || '-'}`,
+    `${f.offer} : ${offerLabel(d.offer)}`,
+    `${f.teams} : ${d.teams}`,
+    `${f.level} : ${d.players || '-'}`,
+    `CERFA : ${d.needsReceipt ? 'oui / yes' : 'non / no'}`,
+    '',
+    d.message,
+  ].join('\n')
 
   // Bouton « Choisir cette formule » de la section Partenaires
   useEffect(() => {
@@ -47,7 +47,7 @@ export default function RegistrationForm() {
       const res = await fetch('/api/inscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, offerLabel: offerLabel(data.offer) }),
+        body: JSON.stringify({ ...data, offerLabel: offerLabel(data.offer), lang: t.lang }),
       })
       if (!res.ok) throw new Error(String(res.status))
       setStatus('sent')
@@ -60,55 +60,56 @@ export default function RegistrationForm() {
   if (status === 'sent') {
     return (
       <div className="form-done reveal is-visible" role="status">
-        <p className="kicker">Merci</p>
-        <h3>Votre demande est bien arrivée</h3>
-        <p>L’équipe Masters XV revient vers vous très rapidement pour finaliser votre inscription.</p>
+        <p className="kicker">{f.doneKicker}</p>
+        <h3>{f.doneTitle}</h3>
+        <p>{f.doneText}</p>
       </div>
     )
   }
 
-  const mailto = EVENT.contactEmail
-    ? `mailto:${EVENT.contactEmail}?subject=${encodeURIComponent('Inscription Masters XV')}&body=${encodeURIComponent(toMailBody(data))}`
+  const mailto = t.event.contactEmail
+    ? `mailto:${t.event.contactEmail}?subject=${encodeURIComponent(f.mailSubject)}&body=${encodeURIComponent(toMailBody(data))}`
     : null
 
   return (
     <form className="form reveal" onSubmit={onSubmit}>
       <div className="form-grid">
-        <label>Prénom<input required autoComplete="given-name" value={data.firstName} onChange={set('firstName')} /></label>
-        <label>Nom<input required autoComplete="family-name" value={data.lastName} onChange={set('lastName')} /></label>
-        <label>Société<input autoComplete="organization" value={data.company} onChange={set('company')} /></label>
-        <label>Téléphone<input type="tel" autoComplete="tel" value={data.phone} onChange={set('phone')} /></label>
-        <label className="span-2">E-mail<input required type="email" autoComplete="email" value={data.email} onChange={set('email')} /></label>
-        <label className="span-2">Formule
+        <label>{f.firstName}<input required autoComplete="given-name" value={data.firstName} onChange={set('firstName')} /></label>
+        <label>{f.lastName}<input required autoComplete="family-name" value={data.lastName} onChange={set('lastName')} /></label>
+        <label>{f.company}<input autoComplete="organization" value={data.company} onChange={set('company')} /></label>
+        <label>{f.phone}<input type="tel" autoComplete="tel" value={data.phone} onChange={set('phone')} /></label>
+        <label className="span-2">{f.email}<input required type="email" autoComplete="email" value={data.email} onChange={set('email')} /></label>
+        <label className="span-2">{f.offer}
           <select value={data.offer} onChange={set('offer')}>
-            {OFFERS.map(o => <option key={o.id} value={o.id}>{o.name} — {o.price}</option>)}
+            {t.offers.map(o => <option key={o.id} value={o.id}>{o.name} — {o.price}</option>)}
           </select>
         </label>
-        <label>Nombre d’équipes
+        <label>{f.teams}
           <select value={data.teams} onChange={set('teams')}>
-            {['1', '2', '3', '4 ou plus'].map(v => <option key={v}>{v}</option>)}
+            {f.teamsOptions.map(v => <option key={v}>{v}</option>)}
           </select>
         </label>
-        <label>Index / niveau (facultatif)<input placeholder="ex. débutants, index 18…" value={data.players} onChange={set('players')} /></label>
-        <label className="span-2">Message<textarea rows="4" placeholder="Noms des joueurs, invités, questions…" value={data.message} onChange={set('message')} /></label>
+        <label>{f.level}<input placeholder={f.levelPlaceholder} value={data.players} onChange={set('players')} /></label>
+        <label className="span-2">{f.message}<textarea rows="4" placeholder={f.messagePlaceholder} value={data.message} onChange={set('message')} /></label>
         <label className="check span-2">
           <input type="checkbox" checked={data.needsReceipt} onChange={set('needsReceipt')} />
-          <span>Je souhaite recevoir un reçu fiscal (CERFA)</span>
+          <span>{f.receipt}</span>
         </label>
         {/* Piège anti-robots : champ invisible */}
-        <label className="hp" aria-hidden="true">Site web<input tabIndex="-1" autoComplete="off" value={data.website} onChange={set('website')} /></label>
+        <label className="hp" aria-hidden="true">Website<input tabIndex="-1" autoComplete="off" value={data.website} onChange={set('website')} /></label>
       </div>
 
       {status === 'error' && (
         <p className="form-error" role="alert">
-          L’envoi n’a pas abouti.{' '}
-          {mailto ? <>Vous pouvez <a href={mailto}>nous écrire directement par e-mail</a>.</> : 'Merci de réessayer dans un instant.'}
+          {f.error}{' '}
+          {mailto ? <><a href={mailto}>{f.errorMail}</a>.</> : f.retry}
         </p>
       )}
 
       <button className="btn btn-gold btn-block" disabled={status === 'sending'}>
-        {status === 'sending' ? 'Envoi en cours…' : 'Envoyer ma demande'}
+        {status === 'sending' ? f.sending : f.send}
       </button>
+      <p className="form-privacy">{f.privacy[0]} <a href="/politique-de-confidentialite">{f.privacy[1]}</a>.</p>
     </form>
   )
 }

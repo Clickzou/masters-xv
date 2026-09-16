@@ -1,41 +1,31 @@
 import { useEffect, useState } from 'react'
-import { EVENT, OFFERS, PROGRAMME, PILLARS, FORMAT_STEPS } from './content.js'
-import Countdown from './components/Countdown.jsx'
-import Fairways from './components/Fairways.jsx'
-import RegistrationForm from './components/RegistrationForm.jsx'
-import SponsorsCarousel from './components/SponsorsCarousel.jsx'
-import Gallery from './components/Gallery.jsx'
-import HeroBackdrop from './components/HeroBackdrop.jsx'
+import { CONTENT } from './content.js'
+import { LEGAL, LEGAL_SLUGS } from './legal.js'
+import { LangContext, detectLang, saveLang, store } from './i18n.jsx'
+import { MAP_KEY } from './components/MapConsent.jsx'
+import Home from './pages/Home.jsx'
+import LegalPage from './pages/LegalPage.jsx'
 
-const NAV = [
-  ['esprit', 'L’esprit'],
-  ['programme', 'Programme'],
-  ['formule', 'La formule'],
-  ['lieu', 'Le lieu'],
-  ['partenaires', 'Associez votre marque'],
-]
-
-function Ornament() {
-  return (
-    <div className="ornament" aria-hidden="true">
-      <span /><i>✦</i><span />
-    </div>
-  )
-}
-
-function SectionTitle({ kicker, title, light }) {
-  return (
-    <header className={`section-title reveal${light ? ' is-light' : ''}`} data-reveal="title">
-      <p className="kicker">{kicker}</p>
-      <h2>{title}</h2>
-      <Ornament />
-    </header>
-  )
+const legalSlug = () => {
+  const slug = window.location.pathname.replace(/^\/|\/$/g, '')
+  return LEGAL_SLUGS.includes(slug) ? slug : null
 }
 
 export default function App() {
+  const [lang, setLang] = useState(detectLang)
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [notice, setNotice] = useState(false)
+  const t = CONTENT[lang]
+  const slug = legalSlug()
+  const base = slug ? '/' : '' // liens d'ancre vers l'accueil depuis une page légale
+
+  // Langue, titre et description de la page
+  useEffect(() => {
+    document.documentElement.lang = lang
+    document.title = slug ? `${LEGAL[lang][slug].title} – Masters XV` : t.meta.title
+    document.querySelector('meta[name="description"]')?.setAttribute('content', t.meta.description)
+  }, [lang, slug, t])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -44,231 +34,81 @@ export default function App() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Apparition douce des blocs au défilement
+  // « Gérer les cookies » : efface les choix mémorisés et masque de nouveau la carte
   useEffect(() => {
-    const els = document.querySelectorAll('.reveal, .reveal-line')
-    const io = new IntersectionObserver(
-      entries => entries.forEach(e => e.isIntersecting && (e.target.classList.add('is-visible'), io.unobserve(e.target))),
-      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' },
-    )
-    els.forEach(el => io.observe(el))
-    return () => io.disconnect()
+    const onReset = () => {
+      store.del(MAP_KEY)
+      window.dispatchEvent(new Event('mxv-cookies-reset'))
+      setNotice(true)
+      setTimeout(() => setNotice(false), 4000)
+    }
+    window.addEventListener('mxv-cookies-request-reset', onReset)
+    return () => window.removeEventListener('mxv-cookies-request-reset', onReset)
   }, [])
 
+  const switchLang = () => {
+    const next = lang === 'fr' ? 'en' : 'fr'
+    saveLang(next)
+    setLang(next)
+    setMenuOpen(false)
+  }
+
+  const scrolledClass = scrolled || slug ? ' is-scrolled' : ''
+
   return (
-    <>
-      <nav className={`nav${scrolled ? ' is-scrolled' : ''}${menuOpen ? ' is-open' : ''}`}>
-        <a href="#top" className="nav-brand" onClick={() => setMenuOpen(false)}>
+    <LangContext.Provider value={t}>
+      <nav className={`nav${scrolledClass}${menuOpen ? ' is-open' : ''}`}>
+        <a href={slug ? '/' : '#top'} className="nav-brand" onClick={() => setMenuOpen(false)}>
           <img src="/logo/masters-xv-logo-couleur.svg" alt="" width="30" height="41" />
           <span>Masters XV</span>
         </a>
-        <button className="nav-toggle" aria-label="Menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(o => !o)}>
-          <span /><span />
-        </button>
+        <div className="nav-right">
+          <button className="lang-switch" onClick={switchLang} aria-label={t.nav.switchTo} title={t.nav.switchTo}>
+            <span className={lang === 'fr' ? 'is-active' : ''}>FR</span>
+            <i aria-hidden="true">|</i>
+            <span className={lang === 'en' ? 'is-active' : ''}>EN</span>
+          </button>
+          <button className="nav-toggle" aria-label={t.nav.menu} aria-expanded={menuOpen} onClick={() => setMenuOpen(o => !o)}>
+            <span /><span />
+          </button>
+        </div>
         <ul>
-          {NAV.map(([id, label]) => (
-            <li key={id}><a href={`#${id}`} onClick={() => setMenuOpen(false)}>{label}</a></li>
+          {t.nav.items.map(([id, label]) => (
+            <li key={id}><a href={`${base}#${id}`} onClick={() => setMenuOpen(false)}>{label}</a></li>
           ))}
-          <li><a href="#inscription" className="nav-cta" onClick={() => setMenuOpen(false)}>Inscription</a></li>
+          <li><a href={`${base}#inscription`} className="nav-cta" onClick={() => setMenuOpen(false)}>{t.nav.cta}</a></li>
         </ul>
       </nav>
 
-      <main id="top">
-        {/* ——— Accueil ——— */}
-        <section className="hero">
-          <HeroBackdrop />
-          <div className="hero-frame" aria-hidden="true" />
-          <div className="hero-inner">
-            <img className="hero-logo" src="/logo/masters-xv-logo-couleur.svg" alt="Masters XV – Midi Olympique Golf Tournament" width="880" height="1190" />
-            <div className="hero-text">
-              <p className="kicker">Midi Olympique présente</p>
-              <h1>Le tournoi<br /><em>des légendes</em></h1>
-              <p className="hero-org">— organisé par <strong>CTA Events</strong></p>
-              <div className="hero-meta">
-                <span>{EVENT.dateLabel}</span>
-                <i aria-hidden="true">✦</i>
-                <span>{EVENT.venue}</span>
-              </div>
-              <Countdown target={EVENT.startsAt} />
-              <div className="hero-actions">
-                <a className="btn btn-gold" href="#inscription">Inscrire une équipe</a>
-                <a className="btn btn-ghost" href="#programme">Découvrir le programme</a>
-              </div>
-            </div>
-          </div>
-          <Fairways className="hero-fairways" base="var(--ivory)" />
-        </section>
-
-        {/* ——— L'esprit ——— */}
-        <section className="sponsors-band paper">
-          <SponsorsCarousel />
-        </section>
-
-        <section id="esprit" className="section esprit">
-          <div className="esprit-bg" aria-hidden="true" />
-          <div className="container">
-            <SectionTitle kicker="L’esprit Masters XV" title="Quand l’Ovalie prend le green" light />
-            <p className="lead is-light reveal">
-              Ni tout à fait un tournoi de golf, ni tout à fait un rendez-vous rugby : Masters XV réunit
-              les passionnés des deux univers autour de ce qu’ils partagent — l’esprit d’équipe, le respect
-              et le goût de la fête.
-            </p>
-            <div className="pillars">
-              {PILLARS.map((p, i) => (
-                <article key={p.title} className="pillar reveal" style={{ '--d': `${i * 150}ms` }}>
-                  <span className="pillar-num">{['I', 'II', 'III'][i]}</span>
-                  <h3>{p.title}</h3>
-                  <p>{p.text}</p>
-                </article>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ——— Programme ——— */}
-        <section id="programme" className="section green">
-          <div className="container narrow">
-            <SectionTitle kicker={EVENT.dateLabel} title="Le programme de la journée" light />
-            <ol className="timeline reveal-line">
-              {PROGRAMME.map((step, i) => (
-                <li key={step.title} className="reveal" data-reveal="left" style={{ '--d': `${i * 110}ms` }}>
-                  <span className="t-time">{step.time}</span>
-                  <span className="t-dot" aria-hidden="true" />
-                  <div className="t-body">
-                    <h3>{step.title}</h3>
-                    <p>{step.text}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        {/* ——— La formule ——— */}
-        <section id="formule" className="section paper">
-          <div className="container">
-            <SectionTitle kicker="La formule" title={EVENT.format} />
-            <p className="lead reveal">
-              Composez votre équipe de quatre joueurs — partenaires, clients, amis — pour une formule qui marie
-              l’esprit collectif du départ et le défi de chacun jusqu’au green.
-            </p>
-            <div className="steps">
-              {FORMAT_STEPS.map((s, i) => (
-                <div key={s.n} className="step reveal" style={{ '--d': `${i * 130}ms` }}>
-                  <span className="step-n">{s.n}</span>
-                  <h3>{s.title}</h3>
-                  <p>{s.text}</p>
-                </div>
-              ))}
-            </div>
-            <div className="contests reveal" data-reveal="zoom">
-              <div><span className="kicker">Concours</span><strong>Drive</strong><p>Le plus long coup de la journée.</p></div>
-              <div className="contests-sep" aria-hidden="true" />
-              <div><span className="kicker">Concours</span><strong>Précision</strong><p>La balle la plus proche du drapeau.</p></div>
-            </div>
-          </div>
-        </section>
-
-        {/* ——— Le lieu ——— */}
-        <section id="lieu" className="section green lieu">
-          <div className="lieu-bg" aria-hidden="true" />
-          <div className="container lieu-inner">
-            <div className="lieu-text reveal" data-reveal="left">
-              <p className="kicker">Le lieu</p>
-              <h2>{EVENT.venue}</h2>
-              <Ornament />
-              <p>
-                Un cadre verdoyant et un parcours de caractère, aux portes de la Ville rose, pour accueillir
-                la première édition de Masters XV.
-              </p>
-              <p className="lieu-city">{EVENT.venueCity}</p>
-              <a className="btn btn-gold" href={EVENT.mapsUrl} target="_blank" rel="noreferrer">Itinéraire</a>
-            </div>
-          </div>
-        </section>
-
-        {/* ——— Plan d'accès ——— */}
-        <section className="map-band" aria-label="Plan d’accès">
-          <iframe title={`Plan d’accès – ${EVENT.venue}`} src={EVENT.mapsEmbed} loading="lazy" referrerPolicy="no-referrer-when-downgrade" />
-        </section>
-
-        {/* ——— Galerie ——— */}
-        <section id="galerie" className="section paper galerie">
-          <div className="container">
-            <SectionTitle kicker="En images" title="Le golf de Palmola en photo" />
-            <Gallery />
-          </div>
-        </section>
-
-        {/* ——— Partenaires ——— */}
-        <section id="partenaires" className="section paper">
-          <div className="container">
-            <SectionTitle kicker="Entreprises & partenaires" title="Associez votre marque aux légendes" />
-            <p className="lead reveal">
-              Invitez clients et collaborateurs à vivre une journée d’exception sur le green, aux côtés des
-              figures du rugby.
-            </p>
-            <div className="offers">
-              {OFFERS.map((o, i) => (
-                <article key={o.id} className={`offer reveal${o.featured ? ' is-featured' : ''}`} data-reveal="zoom" style={{ '--d': `${i * 140}ms` }}>
-                  {o.featured && <span className="offer-badge">Formule prestige</span>}
-                  <h3>{o.name}</h3>
-                  <p className="offer-price">{o.price}</p>
-                  <p className="offer-tax">{o.taxNote}</p>
-                  {o.netNote && <p className="offer-net">{o.netNote}</p>}
-                  <ul>
-                    {o.perks.map(p => <li key={p}>{p}</li>)}
-                  </ul>
-                  <a className={`btn ${o.featured ? 'btn-gold' : 'btn-outline'}`} href={`#inscription`} onClick={() => window.dispatchEvent(new CustomEvent('choose-offer', { detail: o.id }))}>
-                    Choisir cette formule
-                  </a>
-                </article>
-              ))}
-            </div>
-            <p className="offers-note reveal">
-              * Réduction d’impôt de 60 % du montant du don pour les entreprises, dans les conditions prévues par la loi.
-              Un reçu fiscal (CERFA) vous est remis.
-            </p>
-            <div className="organisers reveal">
-              <span>Une organisation</span>
-              <strong>CTA Events</strong>
-              <em>avec</em>
-              <strong>Midi Olympique</strong>
-              <i aria-hidden="true">×</i>
-              <strong>Golf de Palmola</strong>
-            </div>
-          </div>
-        </section>
-
-        {/* ——— Inscription ——— */}
-        <section id="inscription" className="section green inscription">
-          <div className="container narrow">
-            <SectionTitle kicker="Inscription" title="Réservez votre équipe" light />
-            <p className="lead is-light reveal">
-              Les places sont limitées. Laissez-nous vos coordonnées : l’équipe organisatrice revient vers vous
-              pour confirmer votre inscription{EVENT.registrationDeadline ? ` (avant le ${EVENT.registrationDeadline})` : ''}.
-            </p>
-            <RegistrationForm />
-          </div>
-          <Fairways className="footer-fairways" base="var(--green-deep)" />
-        </section>
-      </main>
+      {slug ? <LegalPage slug={slug} /> : <Home />}
 
       <footer className="footer">
         <img src="/logo/masters-xv-logo-1couleur-or.svg" alt="" width="70" height="95" />
         <p className="footer-title">Masters XV</p>
-        <p>{EVENT.baseline}</p>
-        <p>{EVENT.dateLabel} · {EVENT.venue}</p>
-        {(EVENT.contactEmail || EVENT.contactPhone) && (
+        <p>{t.event.baseline}</p>
+        <p>{t.event.dateLabel} · {t.event.venue}</p>
+        {(t.event.contactEmail || t.event.contactPhone) && (
           <p className="footer-contact">
-            {EVENT.contactEmail && <a href={`mailto:${EVENT.contactEmail}`}>{EVENT.contactEmail}</a>}
-            {EVENT.contactEmail && EVENT.contactPhone && ' · '}
-            {EVENT.contactPhone && <a href={`tel:${EVENT.contactPhone.replace(/\s/g, '')}`}>{EVENT.contactPhone}</a>}
+            {t.event.contactEmail && <a href={`mailto:${t.event.contactEmail}`}>{t.event.contactEmail}</a>}
+            {t.event.contactEmail && t.event.contactPhone && ' · '}
+            {t.event.contactPhone && <a href={`tel:${t.event.contactPhone.replace(/\s/g, '')}`}>{t.event.contactPhone}</a>}
           </p>
         )}
-        <p className="footer-small">© {new Date().getFullYear()} Masters XV · Midi Olympique</p>
-        <p className="footer-credit">Création site internet par <a href="https://www.clickzou.fr/" target="_blank" rel="noopener">Clickzou</a></p>
+        <nav className="footer-legal" aria-label={t.footer.legal}>
+          <a href="/mentions-legales">{t.footer.legal}</a>
+          <a href="/politique-de-confidentialite">{t.footer.privacy}</a>
+          <a href="/politique-cookies">{t.footer.cookies}</a>
+          <button onClick={() => window.dispatchEvent(new Event('mxv-cookies-request-reset'))}>{t.footer.manageCookies}</button>
+        </nav>
+        <p className="footer-small">© {new Date().getFullYear()} Masters XV · CTA Events · Midi Olympique</p>
+        <p className="footer-credit">{t.footer.credit} <a href="https://www.clickzou.fr/" target="_blank" rel="noopener">Clickzou</a></p>
       </footer>
-    </>
+
+      {notice && (
+        <div className="toast" role="status">
+          {lang === 'fr' ? 'Vos choix de cookies ont été réinitialisés.' : 'Your cookie choices have been reset.'}
+        </div>
+      )}
+    </LangContext.Provider>
   )
 }

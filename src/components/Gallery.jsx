@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
-import { GALLERY } from '../content.js'
+import { useT } from '../i18n.jsx'
 
 export default function Gallery() {
+  const t = useT()
+  const GALLERY = t.gallery.items
   const [open, setOpen] = useState(null) // index de la photo agrandie
 
   const close = useCallback(() => setOpen(null), [])
-  const step = useCallback(d => setOpen(i => (i + d + GALLERY.length) % GALLERY.length), [])
+  const count = GALLERY.length
+  const step = useCallback(d => setOpen(i => (i + d + count) % count), [count])
 
   useEffect(() => {
     if (open === null) return
@@ -32,7 +35,7 @@ export default function Gallery() {
             data-reveal="zoom"
             style={{ '--d': `${i * 90}ms` }}
             onClick={() => setOpen(i)}
-            aria-label={`Agrandir : ${p.caption}`}
+            aria-label={`${t.gallery.enlarge} : ${p.caption}`}
           >
             <img src={p.src} alt={p.caption} loading="lazy" />
             <span className="gallery-caption">{p.caption}</span>
@@ -49,9 +52,9 @@ export default function Gallery() {
               <small>{open + 1} / {GALLERY.length}</small>
             </figcaption>
           </figure>
-          <button className="lb-btn lb-prev" aria-label="Photo précédente" onClick={e => { e.stopPropagation(); step(-1) }}>‹</button>
-          <button className="lb-btn lb-next" aria-label="Photo suivante" onClick={e => { e.stopPropagation(); step(1) }}>›</button>
-          <button className="lb-btn lb-close" aria-label="Fermer" onClick={close}>×</button>
+          <button className="lb-btn lb-prev" aria-label={t.gallery.prev} onClick={e => { e.stopPropagation(); step(-1) }}>‹</button>
+          <button className="lb-btn lb-next" aria-label={t.gallery.next} onClick={e => { e.stopPropagation(); step(1) }}>›</button>
+          <button className="lb-btn lb-close" aria-label={t.gallery.close} onClick={close}>×</button>
         </div>
       )}
     </>
