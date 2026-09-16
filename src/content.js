@@ -13,8 +13,6 @@ export const EVENT = {
   mapsEmbed: 'https://maps.google.com/maps?q=Golf%20de%20Palmola&z=13&output=embed',
   format: 'Shamble à 4',
 
-  // À compléter : tarif par équipe (ex. « 1 200 € HT »), sinon null
-  price: null,
   // À compléter : date limite d'inscription (ex. « 5 octobre 2026 »), sinon null
   registrationDeadline: null,
   // À compléter : contact affiché et utilisé si l'envoi du formulaire échoue
@@ -33,6 +31,35 @@ export const SPONSORS = [
   { placeholder: true },
   { placeholder: true },
   { placeholder: true },
+]
+
+// Formules proposées (section Partenaires et formulaire d'inscription)
+export const OFFERS = [
+  {
+    id: 'sponsor',
+    name: 'Sponsor du Masters XV',
+    price: '3 000 €',
+    taxNote: 'dont 60 % défiscalisables',
+    netNote: 'soit 1 200 € après réduction d’impôt*',
+    featured: true,
+    perks: [
+      'Une équipe de 4 joueurs',
+      'Un joueur professionnel de rugby partenaire dans votre équipe',
+      'Reçu fiscal (CERFA)',
+    ],
+  },
+  {
+    id: 'equipe',
+    name: 'Équipe partenaire',
+    price: '1 500 €',
+    taxNote: 'par équipe de 4 joueurs',
+    netNote: null,
+    featured: false,
+    perks: [
+      'Une équipe de 4 joueurs',
+      'Un joueur professionnel de rugby, selon disponibilité',
+    ],
+  },
 ]
 
 export const PROGRAMME = [

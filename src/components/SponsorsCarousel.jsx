@@ -18,7 +18,7 @@ export default function SponsorsCarousel() {
   const loop = [...SPONSORS, ...SPONSORS]
   return (
     <div className="sponsors reveal" aria-label="Nos partenaires">
-      <p className="kicker sponsors-title">Ils soutiennent Masters XV</p>
+      <p className="kicker sponsors-title">Les sponsors qui soutiennent activement Masters XV</p>
       <div className="sponsors-viewport">
         <div className="sponsors-track" style={{ '--count': SPONSORS.length }}>
           {loop.map((s, i) => (

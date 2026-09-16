@@ -1,9 +1,14 @@
-import { useState } from 'react'
-import { EVENT } from '../content.js'
+import { useEffect, useState } from 'react'
+import { EVENT, OFFERS } from '../content.js'
 
 const INITIAL = {
   firstName: '', lastName: '', company: '', email: '', phone: '',
-  teams: '1', players: '', needsReceipt: false, message: '', website: '',
+  offer: OFFERS[0].id, teams: '1', players: '', needsReceipt: false, message: '', website: '',
+}
+
+const offerLabel = id => {
+  const o = OFFERS.find(x => x.id === id)
+  return o ? `${o.name} (${o.price})` : id
 }
 
 // Texte envoyé par e-mail si l'API n'est pas disponible
@@ -13,6 +18,7 @@ function toMailBody(d) {
     `Société : ${d.company || '-'}`,
     `E-mail : ${d.email}`,
     `Téléphone : ${d.phone || '-'}`,
+    `Formule : ${offerLabel(d.offer)}`,
     `Nombre d'équipes : ${d.teams}`,
     `Joueurs : ${d.players || '-'}`,
     `Reçu fiscal (CERFA) souhaité : ${d.needsReceipt ? 'oui' : 'non'}`,
@@ -25,6 +31,13 @@ export default function RegistrationForm() {
   const [data, setData] = useState(INITIAL)
   const [status, setStatus] = useState('idle') // idle | sending | sent | error
 
+  // Bouton « Choisir cette formule » de la section Partenaires
+  useEffect(() => {
+    const onChoose = e => setData(d => ({ ...d, offer: e.detail }))
+    window.addEventListener('choose-offer', onChoose)
+    return () => window.removeEventListener('choose-offer', onChoose)
+  }, [])
+
   const set = key => e => setData(d => ({ ...d, [key]: e.target.type === 'checkbox' ? e.target.checked : e.target.value }))
 
   async function onSubmit(e) {
@@ -34,7 +47,7 @@ export default function RegistrationForm() {
       const res = await fetch('/api/inscription', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify({ ...data, offerLabel: offerLabel(data.offer) }),
       })
       if (!res.ok) throw new Error(String(res.status))
       setStatus('sent')
@@ -66,6 +79,11 @@ export default function RegistrationForm() {
         <label>Société<input autoComplete="organization" value={data.company} onChange={set('company')} /></label>
         <label>Téléphone<input type="tel" autoComplete="tel" value={data.phone} onChange={set('phone')} /></label>
         <label className="span-2">E-mail<input required type="email" autoComplete="email" value={data.email} onChange={set('email')} /></label>
+        <label className="span-2">Formule
+          <select value={data.offer} onChange={set('offer')}>
+            {OFFERS.map(o => <option key={o.id} value={o.id}>{o.name} — {o.price}</option>)}
+          </select>
+        </label>
         <label>Nombre d’équipes
           <select value={data.teams} onChange={set('teams')}>
             {['1', '2', '3', '4 ou plus'].map(v => <option key={v}>{v}</option>)}

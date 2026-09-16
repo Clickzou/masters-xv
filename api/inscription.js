@@ -25,6 +25,7 @@ export default async function handler(req, res) {
     ['Société', d.company],
     ['E-mail', d.email],
     ['Téléphone', d.phone],
+    ['Formule', d.offerLabel || d.offer],
     ["Nombre d'équipes", d.teams],
     ['Index / niveau', d.players],
     ['Reçu fiscal (CERFA)', d.needsReceipt ? 'Oui' : 'Non'],

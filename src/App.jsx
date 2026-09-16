@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { EVENT, PROGRAMME, PILLARS, FORMAT_STEPS } from './content.js'
+import { EVENT, OFFERS, PROGRAMME, PILLARS, FORMAT_STEPS } from './content.js'
 import Countdown from './components/Countdown.jsx'
 import Fairways from './components/Fairways.jsx'
 import RegistrationForm from './components/RegistrationForm.jsx'
@@ -191,23 +191,35 @@ export default function App() {
         <section id="partenaires" className="section paper">
           <div className="container">
             <SectionTitle kicker="Entreprises & partenaires" title="Associez votre marque aux légendes" />
-            <div className="partner-grid">
-              <article className="partner-card reveal" data-reveal="zoom">
-                <h3>Engager une équipe</h3>
-                <p>Invitez clients et collaborateurs à vivre une journée d’exception aux côtés des figures du rugby.</p>
-                {EVENT.price && <p className="price">{EVENT.price}<small> par équipe</small></p>}
-              </article>
-              <article className="partner-card is-featured reveal" data-reveal="zoom" style={{ '--d': '120ms' }}>
-                <h3>Devenir partenaire</h3>
-                <p>Visibilité sur le parcours, lors de la remise des prix et dans les supports Midi Olympique.</p>
-              </article>
-              <article className="partner-card reveal" data-reveal="zoom" style={{ '--d': '240ms' }}>
-                <h3>Avantage fiscal</h3>
-                <p>Votre participation peut ouvrir droit à un reçu fiscal (CERFA). Les modalités vous sont précisées lors de l’inscription.</p>
-              </article>
+            <p className="lead reveal">
+              Invitez clients et collaborateurs à vivre une journée d’exception sur le green, aux côtés des
+              figures du rugby.
+            </p>
+            <div className="offers">
+              {OFFERS.map((o, i) => (
+                <article key={o.id} className={`offer reveal${o.featured ? ' is-featured' : ''}`} data-reveal="zoom" style={{ '--d': `${i * 140}ms` }}>
+                  {o.featured && <span className="offer-badge">Formule prestige</span>}
+                  <h3>{o.name}</h3>
+                  <p className="offer-price">{o.price}</p>
+                  <p className="offer-tax">{o.taxNote}</p>
+                  {o.netNote && <p className="offer-net">{o.netNote}</p>}
+                  <ul>
+                    {o.perks.map(p => <li key={p}>{p}</li>)}
+                  </ul>
+                  <a className={`btn ${o.featured ? 'btn-gold' : 'btn-outline'}`} href={`#inscription`} onClick={() => window.dispatchEvent(new CustomEvent('choose-offer', { detail: o.id }))}>
+                    Choisir cette formule
+                  </a>
+                </article>
+              ))}
             </div>
+            <p className="offers-note reveal">
+              * Réduction d’impôt de 60 % du montant du don pour les entreprises, dans les conditions prévues par la loi.
+              Un reçu fiscal (CERFA) vous est remis.
+            </p>
             <div className="organisers reveal">
               <span>Une organisation</span>
+              <strong>CTA Events</strong>
+              <em>avec</em>
               <strong>Midi Olympique</strong>
               <i aria-hidden="true">×</i>
               <strong>Golf de Palmola</strong>
