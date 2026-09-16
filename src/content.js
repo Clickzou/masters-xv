@@ -72,7 +72,7 @@ const fr = {
   esprit: {
     kicker: 'L’esprit Masters XV',
     title: 'Quand l’Ovalie prend le green',
-    lead: 'Ni tout à fait un tournoi de golf, ni tout à fait un rendez-vous rugby : Masters XV réunit les passionnés des deux univers autour de ce qu’ils partagent — l’esprit d’équipe, le respect et le goût de la fête.',
+    lead: 'Ni tout à fait un tournoi de golf, ni tout à fait un rendez-vous rugby : Masters XV réunit les passionnés des deux univers autour de ce qu’ils partagent — l’esprit d’équipe, le respect, un repas convivial et le partage.',
     pillars: [
       { title: 'Les légendes', text: 'Anciens internationaux et figures du rugby partagent le parcours avec partenaires et invités.' },
       { title: 'Le green', text: 'Un parcours d’exception aux portes de Toulouse, dans l’élégance des grands tournois.' },
@@ -201,7 +201,7 @@ const en = {
   esprit: {
     kicker: 'The Masters XV spirit',
     title: 'Where rugby meets the green',
-    lead: 'Not quite a golf tournament, not quite a rugby gathering: Masters XV brings together enthusiasts of both worlds around what they share — team spirit, respect and a love of celebration.',
+    lead: 'Not quite a golf tournament, not quite a rugby gathering: Masters XV brings together enthusiasts of both worlds around what they share — team spirit, respect, a friendly meal and sharing.',
     pillars: [
       { title: 'The legends', text: 'Former internationals and rugby figures share the course with partners and guests.' },
       { title: 'The green', text: 'An outstanding course on the outskirts of Toulouse, with the elegance of the great tournaments.' },
