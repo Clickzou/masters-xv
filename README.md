@@ -1,35 +1,66 @@
-# Site Masters XV
+# Site Masters XV — masters-xv.fr
 
-Site vitrine et d'inscription du tournoi **Masters XV – Le tournoi des légendes Midi Olympique** (mercredi 14 octobre 2026, golf de Palmola).
+Site vitrine et d'inscription du tournoi **Masters XV – Le tournoi des légendes Midi Olympique** (mercredi 14 octobre 2026, golf de Palmola), en français et en anglais.
 
-React + Vite, prêt pour Vercel. Le formulaire d'inscription passe par une fonction serverless (`api/inscription.js`) qui envoie les demandes par e-mail via Resend.
+- React + Vite, hébergé sur Vercel
+- Inscriptions enregistrées dans **Supabase** (région Francfort)
+- E-mails envoyés avec **Resend** : alerte aux organisateurs + confirmation au participant (FR/EN)
+- Tableau de bord des inscriptions sur **/admin** (connexion e-mail + mot de passe, export Excel)
 
 ## Modifier les contenus
 
-Toutes les informations (date, lieu, programme, tarif, contact, date limite) sont dans [`src/content.js`](src/content.js). Une valeur à `null` masque l'élément correspondant sur le site.
+- Textes, programme, formules, sponsors, galerie : [`src/content.js`](src/content.js) (FR et EN)
+- Pages légales : [`src/legal.js`](src/legal.js) — capital social, directeur de la publication et e-mail de contact à compléter
+
+## Mise en service
+
+### 1. Supabase
+
+1. Projet `masters-xv` → **SQL Editor** → coller le contenu de [`supabase/schema.sql`](supabase/schema.sql) → **Run**.
+2. **Project Settings → API** : noter l'URL du projet et la clé **service_role** (secrète, jamais dans le code).
+
+### 2. Resend
+
+1. **Domains → Add domain** : `masters-xv.fr`.
+2. Ajouter chez **o2switch** (cPanel → Zone DNS) les enregistrements TXT/MX affichés par Resend, puis **Verify**.
+3. **API Keys → Create** : noter la clé.
+
+### 3. Vercel — variables d'environnement
+
+*Settings → Environment Variables* (Production), puis redéployer :
+
+| Variable | Valeur |
+|---|---|
+| `SUPABASE_URL` | `https://<ref>.supabase.co` |
+| `SUPABASE_SERVICE_ROLE_KEY` | clé service_role Supabase |
+| `RESEND_API_KEY` | clé API Resend |
+| `INSCRIPTION_FROM` | `Masters XV <inscriptions@masters-xv.fr>` |
+| `INSCRIPTION_TO` | adresses des organisateurs, séparées par des virgules |
+| `ADMIN_EMAIL` | e-mail de connexion au tableau de bord |
+| `ADMIN_PASSWORD` | mot de passe du tableau de bord (10 caractères minimum) |
+
+### 4. Domaine masters-xv.fr (o2switch → Vercel)
+
+Vercel → *Settings → Domains* → ajouter `masters-xv.fr` et `www.masters-xv.fr`, puis dans la zone DNS o2switch :
+
+| Type | Nom | Valeur |
+|---|---|---|
+| A | `masters-xv.fr.` | `76.76.21.21` |
+| CNAME | `www` | `cname.vercel-dns.com.` |
+
+(Vercel affiche les valeurs exactes à utiliser si elles diffèrent.)
 
 ## En local
 
 ```bash
 npm install
 npm run dev        # http://localhost:5173
-npm run build      # vérifie que le site compile
+npm run build
 ```
 
-Le formulaire ne fonctionne qu'une fois déployé sur Vercel (ou avec `npx vercel dev`).
-
-## Déployer sur Vercel
-
-1. `npx vercel` depuis ce dossier (connexion au compte Vercel au premier lancement), ou importer le dépôt GitHub sur vercel.com. Vercel détecte Vite automatiquement.
-2. Dans *Settings → Environment Variables*, ajouter :
-   - `RESEND_API_KEY` : clé API [Resend](https://resend.com)
-   - `INSCRIPTION_TO` : adresse(s) qui reçoivent les inscriptions, séparées par des virgules
-   - `INSCRIPTION_FROM` : expéditeur vérifié dans Resend, ex. `Masters XV <inscriptions@domaine.fr>`
-3. Redéployer (`npx vercel --prod`).
-
-Sans ces variables, le site fonctionne mais le formulaire affiche un message d'erreur. Il propose alors d'écrire par e-mail si `contactEmail` est renseigné dans `src/content.js`.
+Les fonctions `/api` (formulaire, tableau de bord) tournent sur Vercel ou avec `npx vercel dev`.
 
 ## Visuels
 
 - Logo vectoriel et variantes : `../logo-vectoriel/`
-- Image de partage (`public/og-image.png`) : générée depuis `../invitation/export.mjs`
+- Invitation et image de partage (`public/og-image.png`) : `../invitation/export.mjs`

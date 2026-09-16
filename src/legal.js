@@ -88,10 +88,10 @@ export const LEGAL = {
         { h: 'Destinataires', p: [
           '• L’équipe organisatrice de CTA Events ;',
           '• le cas échéant, les partenaires de l’événement (Midi Olympique, Golf de Palmola), dans la stricte limite nécessaire à l’organisation de la journée ;',
-          '• nos sous-traitants techniques : Vercel Inc. (hébergement du site) et Resend (acheminement des e-mails du formulaire).',
+          '• nos sous-traitants techniques : Supabase (base de données, hébergée dans l’Union européenne à Francfort), Vercel Inc. (hébergement du site) et Resend (acheminement des e-mails de confirmation et d’alerte).',
         ] },
         { h: 'Transferts hors de l’Union européenne', p: [
-          'Vercel et Resend sont des prestataires établis aux États-Unis. Les transferts de données sont encadrés par le cadre de protection des données UE–États-Unis (Data Privacy Framework) et/ou les clauses contractuelles types de la Commission européenne.',
+          'Vos demandes sont stockées dans l’Union européenne (Supabase, région Francfort). Vercel et Resend sont des prestataires établis aux États-Unis : les transferts de données sont encadrés par le cadre de protection des données UE–États-Unis (Data Privacy Framework) et/ou les clauses contractuelles types de la Commission européenne.',
         ] },
         { h: 'Durées de conservation', p: [
           '• Demandes d’inscription et échanges : 3 ans à compter du dernier contact ;',
@@ -181,10 +181,10 @@ export const LEGAL = {
         { h: 'Recipients', p: [
           '• The CTA Events organising team;',
           '• where applicable, the event partners (Midi Olympique, Golf de Palmola), strictly as needed to organise the day;',
-          '• our technical processors: Vercel Inc. (website hosting) and Resend (delivery of form emails).',
+          '• our technical processors: Supabase (database, hosted in the European Union in Frankfurt), Vercel Inc. (website hosting) and Resend (delivery of confirmation and alert emails).',
         ] },
         { h: 'Transfers outside the European Union', p: [
-          'Vercel and Resend are based in the United States. Transfers are covered by the EU–US Data Privacy Framework and/or the European Commission’s standard contractual clauses.',
+          'Your requests are stored in the European Union (Supabase, Frankfurt region). Vercel and Resend are based in the United States: transfers are covered by the EU–US Data Privacy Framework and/or the European Commission’s standard contractual clauses.',
         ] },
         { h: 'Retention periods', p: [
           '• Registration requests and correspondence: 3 years from the last contact;',

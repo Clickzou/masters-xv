@@ -73,24 +73,25 @@ export default function RegistrationForm() {
 
   return (
     <form className="form reveal" onSubmit={onSubmit}>
+      <p className="form-required">{f.requiredNote}</p>
       <div className="form-grid">
         <label>{f.firstName}<input required autoComplete="given-name" value={data.firstName} onChange={set('firstName')} /></label>
         <label>{f.lastName}<input required autoComplete="family-name" value={data.lastName} onChange={set('lastName')} /></label>
-        <label>{f.company}<input autoComplete="organization" value={data.company} onChange={set('company')} /></label>
-        <label>{f.phone}<input type="tel" autoComplete="tel" value={data.phone} onChange={set('phone')} /></label>
+        <label>{f.company}<input required autoComplete="organization" value={data.company} onChange={set('company')} /></label>
+        <label>{f.phone}<input required type="tel" autoComplete="tel" pattern="[0-9+().\s-]{6,}" value={data.phone} onChange={set('phone')} /></label>
         <label className="span-2">{f.email}<input required type="email" autoComplete="email" value={data.email} onChange={set('email')} /></label>
         <label className="span-2">{f.offer}
-          <select value={data.offer} onChange={set('offer')}>
+          <select required value={data.offer} onChange={set('offer')}>
             {t.offers.map(o => <option key={o.id} value={o.id}>{o.name} — {o.price}</option>)}
           </select>
         </label>
         <label>{f.teams}
-          <select value={data.teams} onChange={set('teams')}>
+          <select required value={data.teams} onChange={set('teams')}>
             {f.teamsOptions.map(v => <option key={v}>{v}</option>)}
           </select>
         </label>
-        <label>{f.level}<input placeholder={f.levelPlaceholder} value={data.players} onChange={set('players')} /></label>
-        <label className="span-2">{f.message}<textarea rows="4" placeholder={f.messagePlaceholder} value={data.message} onChange={set('message')} /></label>
+        <label>{f.level}<input required placeholder={f.levelPlaceholder} value={data.players} onChange={set('players')} /></label>
+        <label className="span-2">{f.message}<textarea required rows="4" placeholder={f.messagePlaceholder} value={data.message} onChange={set('message')} /></label>
         <label className="check span-2">
           <input type="checkbox" checked={data.needsReceipt} onChange={set('needsReceipt')} />
           <span>{f.receipt}</span>

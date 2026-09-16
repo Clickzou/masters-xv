@@ -151,7 +151,8 @@ const fr = {
   form: {
     firstName: 'Prénom', lastName: 'Nom', company: 'Société', phone: 'Téléphone', email: 'E-mail',
     offer: 'Formule', teams: 'Nombre d’équipes', teamsOptions: ['1', '2', '3', '4 ou plus'],
-    level: 'Index / niveau (facultatif)', levelPlaceholder: 'ex. débutants, index 18…',
+    level: 'Index / niveau', levelPlaceholder: 'ex. débutants, index 18…',
+    requiredNote: 'Tous les champs sont obligatoires.',
     message: 'Message', messagePlaceholder: 'Noms des joueurs, invités, questions…',
     receipt: 'Je souhaite recevoir un reçu fiscal (CERFA)',
     privacy: ['Les informations recueillies sont utilisées par CTA Events uniquement pour traiter votre demande et organiser l’événement. Pour en savoir plus et exercer vos droits, consultez notre', 'politique de confidentialité'],
@@ -279,7 +280,8 @@ const en = {
   form: {
     firstName: 'First name', lastName: 'Last name', company: 'Company', phone: 'Phone', email: 'Email',
     offer: 'Package', teams: 'Number of teams', teamsOptions: ['1', '2', '3', '4 or more'],
-    level: 'Handicap / level (optional)', levelPlaceholder: 'e.g. beginners, handicap 18…',
+    level: 'Handicap / level', levelPlaceholder: 'e.g. beginners, handicap 18…',
+    requiredNote: 'All fields are required.',
     message: 'Message', messagePlaceholder: 'Player names, guests, questions…',
     receipt: 'I would like to receive a tax receipt (CERFA)',
     privacy: ['The information collected is used by CTA Events solely to process your request and organise the event. To find out more and exercise your rights, see our', 'privacy policy'],
