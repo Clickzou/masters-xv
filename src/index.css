@@ -796,3 +796,5 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
 @media (max-width: 860px) { .adm-table-sponsors td > strong.adm-sp-name { display: flex; } }
 .adm-table td strong.adm-sp-name { display: inline-flex; }
 @media (max-width: 860px) { .adm-table-sponsors td > strong.adm-sp-name { display: flex; } }
+.adm-team { max-width: 280px; min-width: 220px; }
+@media (max-width: 860px) { .adm-team { max-width: none; min-width: 0; } }

@@ -1,7 +1,7 @@
 // API du tableau de bord (protégée par mot de passe) : lister, mettre à jour, supprimer
 // ?list=partenaires (défaut) ou ?list=invites
 // Connexion : prénom et nom de l'organisateur + mot de passe commun (ADMIN_PASSWORD).
-// Invités : un organisateur indique « C'est moi qui l'ai invité » (invited_by = son nom).
+// Invités : tous les organisateurs peuvent modifier et placer tous les invités.
 // Ensuite, seul lui peut modifier ou supprimer cet invité ; les autres le voient en lecture seule.
 // Variables : ADMIN_PASSWORD (+ variables Supabase)
 import { createHash, timingSafeEqual } from 'node:crypto'
@@ -11,7 +11,6 @@ import { sponsorBySlug } from '../src/content.js'
 const digest = s => createHash('sha256').update(String(s)).digest()
 const sleep = ms => new Promise(r => setTimeout(r, ms))
 export const cleanName = s => String(s ?? '').replace(/\s+/g, ' ').trim().slice(0, 120)
-export const sameName = (a, b) => cleanName(a).toLowerCase() === cleanName(b).toLowerCase()
 
 // En-tête « Authorization: Basic base64(prénom nom:motdepasse) » → nom de l'organisateur, ou null
 function authorise(req) {
@@ -84,14 +83,6 @@ export default async function handler(req, res) {
   if (!list) return res.status(400).json({ error: 'list' })
   const guests = listKey === 'invites'
 
-  // Un invité revendiqué par un autre organisateur est en lecture seule
-  const check = async id => {
-    if (!guests) return { ok: true }
-    const row = await list.get(id)
-    if (!row) return { code: 404, error: 'missing' }
-    if (row.invited_by && !sameName(row.invited_by, me)) return { code: 403, error: 'forbidden' }
-    return { ok: true, row }
-  }
 
   try {
     if (req.method === 'GET') {
@@ -124,7 +115,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'PATCH') {
-      const { id, status, notes, claim, profile, team, teamNo } = req.body || {}
+      const { id, status, notes, profile, team, teamNo } = req.body || {}
       if (!isUuid(id)) return res.status(400).json({ error: 'id' })
       const patch = {}
       if (status !== undefined) {
@@ -132,7 +123,6 @@ export default async function handler(req, res) {
         patch.status = status
       }
       if (notes !== undefined) patch.notes = String(notes).slice(0, 4000)
-      if (guests && claim !== undefined) patch.invited_by = claim ? me : null
       if (guests && profile !== undefined) {
         if (profile !== null && !PROFILES.includes(profile)) return res.status(400).json({ error: 'profile' })
         patch.profile = profile
@@ -150,21 +140,14 @@ export default async function handler(req, res) {
       }
       if (!Object.keys(patch).length) return res.status(400).json({ error: 'empty' })
 
-      const c = await check(id)
-      if (!c.ok) return res.status(c.code).json({ error: c.error })
-      // Placement dans une partie : seulement par l'organisateur qui a revendiqué l'invité (« C'est moi »)
-      if (team !== undefined && !(c.row?.invited_by && sameName(c.row.invited_by, me))) return res.status(403).json({ error: 'claim-first' })
-      // Invité encore libre : la mise à jour n'a lieu que si personne ne l'a revendiqué entre-temps
-      const item = await list.update(id, patch, { onlyIf: guests && !c.row.invited_by ? '&invited_by=is.null' : '' })
-      if (!item) return res.status(409).json({ error: 'already-claimed' })
+      const item = await list.update(id, patch)
+      if (!item) return res.status(404).json({ error: 'missing' })
       return res.status(200).json({ item })
     }
 
     if (req.method === 'DELETE') {
       const id = params.get('id')
       if (!isUuid(id)) return res.status(400).json({ error: 'id' })
-      const c = await check(id)
-      if (!c.ok) return res.status(c.code).json({ error: c.error })
       await list.remove(id)
       return res.status(200).json({ ok: true })
     }

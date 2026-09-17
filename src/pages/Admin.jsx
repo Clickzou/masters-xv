@@ -4,7 +4,7 @@ import { SPONSORS, sponsorBySlug, sponsorSlug } from '../content.js'
 // Tableau de bord des organisateurs — /admin
 // Deux listes séparées : partenaires payants (table « inscriptions ») et invités gratuits (table « invites »)
 // Connexion : prénom et nom de l'organisateur + mot de passe commun.
-// Invités : chacun indique « C'est moi qui l'ai invité » ; ensuite lui seul peut le modifier (le serveur le vérifie aussi).
+// Invités : tous les organisateurs peuvent les modifier et les placer dans une partie.
 const PW_KEY = 'mxv-admin'
 const NAME_KEY = 'mxv-admin-name'
 const TAB_KEY = 'mxv-admin-tab'
@@ -24,8 +24,6 @@ const teamCount = t => (parseInt(t, 10) || 1)
 const people = r => 1 + (Number(r.companions) || 0)
 const tel = p => p.replace(/\s/g, '')
 const cleanName = s => String(s ?? '').replace(/\s+/g, ' ').replace(/:/g, '').trim().slice(0, 120)
-const sameName = (a, b) => cleanName(a).toLowerCase() === cleanName(b).toLowerCase()
-const hostName = n => n || 'Non attribué'
 const cardName = slug => sponsorBySlug(slug)?.name || 'Midi Olympique'
 // Parties d'un sponsor : Partie 1 = représentant + 3 invités (4 sans représentant) ; parties suivantes = 4 invités
 const capacity = (sponsors, slug, no = 1) => (no > 1 || sponsors?.[slug]?.has_representative === false ? 4 : 3)
@@ -35,7 +33,6 @@ const TEAMS = Object.fromEntries(SPONSORS.map(sp => [sponsorSlug(sp), sp.name]))
 const inTeam = (invites, slug, no = 1) => invites.filter(r => r.team === slug && (r.team_no || 1) === no && r.status !== 'annule')
 const CARDS = Object.fromEntries(SPONSORS.filter(sp => sp.name !== 'Midi Olympique').map(sp => [sponsorSlug(sp), sp.name]))
 const userOf = token => { try { return cleanName(new TextDecoder().decode(Uint8Array.from(atob(token), c => c.charCodeAt(0))).split(':')[0]) } catch { return '' } }
-const canEdit = (me, tab, r) => tab !== 'invites' || !r.invited_by || sameName(r.invited_by, me)
 const local = {
   get: k => { try { return localStorage.getItem(k) || '' } catch { return '' } },
   set: (k, v) => { try { localStorage.setItem(k, v) } catch { /* ignoré */ } },
@@ -86,7 +83,6 @@ const LISTS = {
     file: 'invites',
     status: { nouveau: 'Nouveau', confirme: 'Confirmé', annule: 'Annulé' },
     filter: { key: 'participation', all: 'Toutes les participations', options: PARTICIPATION },
-    byHost: true,
     byCard: true,
     stats: (list, { sponsors }) => {
       const placed = list.filter(r => r.team).length
@@ -104,15 +100,14 @@ const LISTS = {
     },
     columns: [
       ['Profil', (r, x) => (
-        <select className={`adm-profile is-${r.profile || 'none'}`} value={r.profile || ''} disabled={!x.editable}
+        <select className={`adm-profile is-${r.profile || 'none'}`} value={r.profile || ''}
           onChange={e => x.patch(r.id, { profile: e.target.value || null })}>
           <option value="">À définir</option>
           {Object.entries(PROFILE).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
       ), '', true],
       ['Partie', (r, x) => (
-        <select className={`adm-team${r.team ? ' is-set' : ''}`} value={r.team ? `${r.team}:${r.team_no || 1}` : ''} disabled={!x.mine}
-          title={x.mine ? undefined : 'Cliquez d’abord sur « C’est moi » pour placer cet invité'}
+        <select className={`adm-team${r.team ? ' is-set' : ''}`} value={r.team ? `${r.team}:${r.team_no || 1}` : ''}
           onChange={e => { const [team, no] = e.target.value.split(':'); x.patch(r.id, { team: team || null, teamNo: team ? Number(no) : 1 }, 'invites') }}>
           <option value="">Aucune</option>
           {Object.entries(TEAMS).map(([k, v]) => (
@@ -129,7 +124,6 @@ const LISTS = {
       ), '', true],
       ['Handicap', r => r.level || '—', 'center'],
       ['Carte', r => (r.source === 'manuel' ? 'Ajout manuel' : cardName(r.sponsor))],
-      ['Invité par', (r, x) => <HostCell r={r} me={x.me} onClaim={claim => x.patch(r.id, { claim })} />, '', true],
       ['Société', r => r.company || '—'],
       ['Participation', r => <span className={`adm-offer is-${r.participation}`}>{PARTICIPATION[r.participation] || r.participation}</span>],
       ['Accomp.', r => r.companions ?? 0, 'center'],
@@ -139,7 +133,7 @@ const LISTS = {
       ['Profil', PROFILE[r.profile] || 'À définir'],
       ['Partie', teamLabel(r.team, r.team_no) || 'Aucune'],
       ['Carte', r.source === 'manuel' ? 'Ajout manuel' : cardName(r.sponsor)],
-      ['Invité par', hostName(r.invited_by)],
+      ['Ajouté par', r.source === 'manuel' ? r.invited_by : null],
       ['Société', r.company],
       ['Participation', PARTICIPATION[r.participation]],
       ['Accompagnants', String(r.companions ?? 0)],
@@ -150,7 +144,7 @@ const LISTS = {
       ['Profil', 16, r => PROFILE[r.profile] || 'À définir'],
       ['Partie', 30, r => teamLabel(r.team, r.team_no)],
       ['Carte d’invitation', 24, r => (r.source === 'manuel' ? 'Ajout manuel' : cardName(r.sponsor))],
-      ['Invité par', 22, r => hostName(r.invited_by)],
+      ['Ajouté par', 22, r => (r.source === 'manuel' ? r.invited_by || '' : '')],
       ['Société', 24, r => r.company || ''],
       ['Participation', 18, r => PARTICIPATION[r.participation] || r.participation],
       ['Accompagnants', 14, r => ({ value: Number(r.companions) || 0, type: Number })],
@@ -226,7 +220,6 @@ export default function Admin() {
   const [busy, setBusy] = useState(false)
   const [q, setQ] = useState('')
   const [choice, setChoice] = useState('')
-  const [host, setHost] = useState('')
   const [card, setCard] = useState('')
   const [team, setTeam] = useState('')
   const [status, setStatus] = useState('')
@@ -273,7 +266,7 @@ export default function Admin() {
 
   const switchTab = key => {
     setTab(key); session.set(TAB_KEY, key)
-    setQ(''); setChoice(''); setHost(''); setCard(''); setTeam(''); setStatus(''); setOpen(null)
+    setQ(''); setChoice(''); setCard(''); setTeam(''); setStatus(''); setOpen(null)
   }
 
   const setItems = (list, fn) => setData(d => ({ ...d, [list]: fn(d[list]) }))
@@ -297,7 +290,6 @@ export default function Admin() {
       setItems(list, rows => rows.map(r => (r.id === id ? item : r)))
     } catch (err) {
       setError(err.message === 'team' ? 'Cette partie n’existe plus : actualisez la page.'
-        : err.message === 'claim-first' ? 'Cliquez d’abord sur « C’est moi » : seul l’organisateur qui a invité la personne peut la placer dans une partie.'
         : err.status === 403 ? 'Cet invité a été ajouté par un autre organisateur : vous ne pouvez pas le modifier.'
         : err.status === 409 ? 'Un autre organisateur vient d’indiquer qu’il a invité cette personne.'
           : 'La modification n’a pas été enregistrée.')
@@ -321,12 +313,10 @@ export default function Admin() {
       (!choice || r[cfg.filter.key] === choice) &&
       (!card || (card === 'none' ? !r.sponsor : r.sponsor === card)) &&
       (!team || (team === 'none' ? !r.team : r.team === team)) &&
-      (!host || (host === 'none' ? !r.invited_by : host === 'mine' ? sameName(r.invited_by, me) : r.invited_by === host)) &&
       (!status || r.status === status) &&
       (!s || [r.first_name, r.last_name, r.company, r.email, r.phone].some(v => (v || '').toLowerCase().includes(s))))
-  }, [items, q, choice, host, card, team, status, cfg, me])
+  }, [items, q, choice, card, team, status, cfg])
 
-  const hosts = useMemo(() => [...new Set((data?.invites || []).map(r => r.invited_by).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr')), [data])
 
   const stats = useMemo(() => cfg.stats((items || []).filter(r => r.status !== 'annule'), {
     confirmedSponsors: Object.values(data?.sponsors || {}).filter(r => r.confirmed).length,
@@ -371,7 +361,7 @@ export default function Admin() {
 
         {tab === 'invites' && (
           <div className="adm-hint adm-hint-row">
-            <p>Les invités s’inscrivent eux-mêmes avec la carte d’invitation. Choisissez leur <strong>profil</strong> (golfeur ou joueur de rugby) et, si c’est vous qui les avez invités, cliquez sur <strong>« C’est moi »</strong> : vous seul pourrez ensuite les modifier.</p>
+            <p>Les invités s’inscrivent eux-mêmes directement avec la carte d’invitation que vous avez envoyée. Néanmoins, vous pouvez aussi ajouter un invité manuellement s’il vous l’a confirmé par téléphone.</p>
             <div className="adm-add-actions">
               <button className="adm-btn adm-btn-gold" onClick={() => setAdding('golfeur')}>+ Ajouter un invité</button>
               <button className="adm-btn adm-btn-gold" onClick={() => setAdding('rugbyman')}>+ Ajouter un rugbyman</button>
@@ -383,7 +373,7 @@ export default function Admin() {
           {stats.map(([label, value, note]) => <div key={label}><span>{label}</span><strong>{value}</strong><small>{note}</small></div>)}
         </section>
 
-        {tab === 'partenaires' && <SponsorsPanel status={data.sponsors} invites={data.invites} me={me} onChange={setSponsor} onPlace={(id, changes) => patch(id, changes, 'invites')} />}
+        {tab === 'partenaires' && <SponsorsPanel status={data.sponsors} invites={data.invites} onChange={setSponsor} onPlace={(id, changes) => patch(id, changes, 'invites')} />}
 
         {tab === 'partenaires' && <h2 className="adm-h2">Demandes reçues par le site</h2>}
 
@@ -407,14 +397,6 @@ export default function Admin() {
               {Object.entries(CARDS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
             </select>
           )}
-          {cfg.byHost && (
-            <select value={host} onChange={e => setHost(e.target.value)}>
-              <option value="">Tous les organisateurs</option>
-              <option value="mine">Mes invités</option>
-              <option value="none">Non attribués</option>
-              {hosts.filter(n => !sameName(n, me)).map(n => <option key={n} value={n}>{n}</option>)}
-            </select>
-          )}
           <select value={status} onChange={e => setStatus(e.target.value)}>
             <option value="">Tous les statuts</option>
             {statusOptions}
@@ -431,7 +413,7 @@ export default function Admin() {
               </thead>
               <tbody>
                 {filtered.map(r => (
-                  <tr key={r.id} onClick={() => setOpen(r.id)} className={`${r.status === 'annule' ? 'is-cancelled' : ''}${canEdit(me, tab, r) ? '' : ' is-readonly'}`}>
+                  <tr key={r.id} onClick={() => setOpen(r.id)} className={r.status === 'annule' ? 'is-cancelled' : ''}>
                     <td className="nowrap adm-cell-date" data-label="Date">{fmtDate(r.created_at)}</td>
                     <td className="adm-cell-contact" data-label="Contact">
                       <strong>{r.first_name} {r.last_name}</strong>
@@ -440,11 +422,11 @@ export default function Admin() {
                     </td>
                     {cfg.columns.map(([title, get, cls, interactive]) => (
                       <td key={title} data-label={title} className={cls || undefined} onClick={interactive ? e => e.stopPropagation() : undefined}>
-                        {get(r, { me, patch, editable: canEdit(me, tab, r), mine: Boolean(r.invited_by) && sameName(r.invited_by, me), invites: data.invites, sponsors: data.sponsors })}
+                        {get(r, { patch, invites: data.invites, sponsors: data.sponsors })}
                       </td>
                     ))}
                     <td data-label="Statut" onClick={e => e.stopPropagation()}>
-                      <select className={`adm-status is-${r.status}`} value={r.status} disabled={!canEdit(me, tab, r)} title={canEdit(me, tab, r) ? undefined : `Lecture seule : invité de ${r.invited_by}`} onChange={e => patch(r.id, { status: e.target.value })}>
+                      <select className={`adm-status is-${r.status}`} value={r.status} onChange={e => patch(r.id, { status: e.target.value })}>
                         {statusOptions}
                       </select>
                     </td>
@@ -481,27 +463,13 @@ export default function Admin() {
               <dt>Langue</dt><dd>{current.lang === 'en' ? 'Anglais' : 'Français'}</dd>
               <dt>Message</dt><dd className="pre">{current.message || '—'}</dd>
             </dl>
-            {canEdit(me, tab, current) ? (
-              <>
-                {tab === 'invites' && (
-                  <div className="adm-field">Invité par
-                    <HostCell r={current} me={me} onClaim={claim => patch(current.id, { claim })} />
-                  </div>
-                )}
-                <label className="adm-field">Statut
-                  <select value={current.status} onChange={e => patch(current.id, { status: e.target.value })}>
-                    {statusOptions}
-                  </select>
-                </label>
-                <NotesField key={current.id} value={current.notes || ''} onSave={notes => patch(current.id, { notes })} />
-                <button className="adm-delete" onClick={() => remove(current)}>Supprimer cette demande</button>
-              </>
-            ) : (
-              <>
-                <p className="adm-readonly">Lecture seule : cet invité a été ajouté par <strong>{current.invited_by}</strong>. Lui seul peut le modifier.</p>
-                <dl><dt>Statut</dt><dd>{cfg.status[current.status]}</dd><dt>Notes</dt><dd className="pre">{current.notes || '—'}</dd></dl>
-              </>
-            )}
+            <label className="adm-field">Statut
+              <select value={current.status} onChange={e => patch(current.id, { status: e.target.value })}>
+                {statusOptions}
+              </select>
+            </label>
+            <NotesField key={current.id} value={current.notes || ''} onSave={notes => patch(current.id, { notes })} />
+            <button className="adm-delete" onClick={() => remove(current)}>Supprimer cette demande</button>
           </aside>
         </div>
       )}
@@ -548,7 +516,7 @@ function AddPlayer({ profile = 'rugbyman', onClose, onSave }) {
           <label className="adm-field">Notes internes<textarea rows="3" value={d.notes} onChange={set('notes')} placeholder="Palmarès, poste, équipe associée…" /></label>
           {err && <p className="adm-readonly" role="alert">{err}</p>}
           <button className="adm-btn adm-btn-gold" disabled={busy}>{busy ? 'Ajout…' : 'Ajouter à la liste des invités'}</button>
-          <p className="adm-muted">Vous serez indiqué comme « Invité par » : vous seul pourrez modifier ce joueur.</p>
+          <p className="adm-muted">Votre nom sera enregistré comme « Ajouté par ».</p>
         </form>
       </aside>
     </div>
@@ -557,14 +525,14 @@ function AddPlayer({ profile = 'rugbyman', onClose, onSave }) {
 
 // Sponsors du site (src/content.js) : confirmé ou non, représentant et parties
 // Partie 1 = représentant + 3 invités (4 sans représentant) · « Créer une nouvelle partie » ajoute Partie 2, 3… de 4 invités
-function SponsorsPanel({ status, invites, me, onChange, onPlace }) {
+function SponsorsPanel({ status, invites, onChange, onPlace }) {
   const viaCard = slug => invites.filter(r => r.sponsor === slug && r.status !== 'annule').length
-  // Invités que l'organisateur connecté peut placer : revendiqués par lui (« C'est moi ») et sans partie
-  const placeable = invites.filter(r => r.status !== 'annule' && !r.team && r.invited_by && sameName(r.invited_by, me))
+  // Invités pouvant être placés : tous ceux qui n'ont pas encore de partie
+  const placeable = invites.filter(r => r.status !== 'annule' && !r.team)
   return (
     <section className="adm-sponsors" aria-label="Sponsors du site">
       <h2 className="adm-h2">Sponsors et parties</h2>
-      <p className="adm-muted adm-sub">Partie 1 : le représentant du sponsor + 3 invités (4 sans représentant). Chaque nouvelle partie compte 4 invités. Sur une place libre, choisissez l’un de vos invités (revendiqués avec « C’est moi »). Les places sont indicatives : une partie peut être dépassée, à arbitrer ensuite.</p>
+      <p className="adm-muted adm-sub">Partie 1 : le représentant du sponsor + 3 invités (4 sans représentant). Chaque nouvelle partie compte 4 invités. Sur une place libre, choisissez un invité sans partie. Les places sont indicatives : une partie peut être dépassée, à arbitrer ensuite.</p>
       <div className="adm-table-wrap">
         <table className="adm-table adm-table-sponsors">
           <thead><tr><th>Logo</th><th>Sponsor</th><th>Représentant</th><th>Parties</th><th>Statut</th><th>Modifié par</th></tr></thead>
@@ -611,11 +579,10 @@ function SponsorsPanel({ status, invites, me, onChange, onPlace }) {
                               {Array.from({ length: Math.max(max, members.length) }, (_, j) => {
                                 const m = members[j]
                                 if (m) {
-                                  const mine = m.invited_by && sameName(m.invited_by, me)
                                   return (
                                     <li key={m.id} className={j >= max ? 'is-extra' : ''}>
                                       {m.first_name} {m.last_name}{m.profile && <small> · {PROFILE[m.profile]}</small>}{m.level && <small> · hcp {m.level}</small>}
-                                      {mine && <button type="button" className="adm-unclaim" title="Retirer de la partie" onClick={() => onPlace(m.id, { team: null, teamNo: 1 })}>retirer</button>}
+                                      <button type="button" className="adm-unclaim" title="Retirer de la partie" onClick={() => onPlace(m.id, { team: null, teamNo: 1 })}>retirer</button>
                                     </li>
                                   )
                                 }
@@ -623,7 +590,7 @@ function SponsorsPanel({ status, invites, me, onChange, onPlace }) {
                                   <li key={`free-${j}`} className="is-free">
                                     {placeable.length ? (
                                       <select className="adm-slot" value="" onChange={e => e.target.value && onPlace(e.target.value, { team: slug, teamNo: no })}>
-                                        <option value="">Place libre · ajouter un de mes invités…</option>
+                                        <option value="">Place libre · ajouter un invité…</option>
                                         {placeable.map(r => <option key={r.id} value={r.id}>{r.first_name} {r.last_name}{r.profile ? ` (${PROFILE[r.profile]})` : ''}</option>)}
                                       </select>
                                     ) : 'Place libre'}
@@ -661,17 +628,6 @@ function RepresentativeField({ value, onSave }) {
   return (
     <input className="adm-rep" value={v} placeholder="Prénom Nom" maxLength="120"
       onChange={e => setV(e.target.value)} onBlur={save} onKeyDown={e => e.key === 'Enter' && e.currentTarget.blur()} />
-  )
-}
-
-// « Invité par » : bouton pour revendiquer un invité libre, ou pour se retirer
-function HostCell({ r, me, onClaim }) {
-  if (!r.invited_by) return <button type="button" className="adm-claim" onClick={() => onClaim(true)}>C’est moi</button>
-  if (!sameName(r.invited_by, me)) return <span className="adm-host">{r.invited_by}</span>
-  return (
-    <span className="adm-host is-me">{r.invited_by}
-      <button type="button" className="adm-unclaim" onClick={() => window.confirm('Retirer votre nom de cet invité ?') && onClaim(false)}>retirer</button>
-    </span>
   )
 }
 
