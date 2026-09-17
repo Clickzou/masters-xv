@@ -722,3 +722,66 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
 .adm-btn-add:hover:not(:disabled) { background: #faf7ef; }
 
 .adm-add-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ——— Tableau de bord : mobile et tablette ——— */
+.adm-burger { display: none; }
+@media (max-width: 860px) {
+  .adm-top { position: sticky; flex-wrap: nowrap; padding: 10px 16px; }
+  .adm-brand { min-width: 0; }
+  .adm-brand span { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 52vw; }
+  .adm-burger { display: inline-flex; flex-direction: column; justify-content: center; gap: 5px; width: 42px; height: 42px; padding: 0 10px; background: none; border: 1px solid rgba(217, 168, 62, .6); cursor: pointer; flex-shrink: 0; }
+  .adm-burger span { display: block; height: 2px; background: var(--ivory); transition: transform .2s, opacity .2s; }
+  .adm-burger.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+  .adm-burger.is-open span:nth-child(2) { opacity: 0; }
+  .adm-burger.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+  .adm-top-actions { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 8px; padding: 12px 16px 16px; background: var(--green-deep); border-bottom: 2px solid var(--gold); box-shadow: 0 12px 24px rgba(0, 0, 0, .25); }
+  .adm-top-actions.is-open { display: flex; }
+  .adm-top-actions .adm-btn { width: 100%; padding: 12px; font-size: .85rem; }
+  .adm-tabs { padding: 0 8px; }
+  .adm-tabs button { flex: 1; justify-content: center; padding: 12px 8px; font-size: .74rem; }
+  .adm-main { padding: 14px; }
+  .adm-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+  .adm-stats div { padding: 12px; }
+  .adm-stats strong { font-size: 1.5rem; }
+  .adm-hint-row { flex-direction: column; align-items: stretch; }
+  .adm-hint-row p { flex: none; }
+  .adm-add-actions { flex-direction: column; }
+  .adm-add-actions .adm-btn { width: 100%; padding: 11px; }
+  .adm-filters { flex-direction: column; }
+  .adm-filters input, .adm-filters select { width: 100%; flex: none; font-size: 16px; }
+
+  /* Tableaux → cartes empilées */
+  .adm-table-wrap { overflow: visible; background: none; border: 0; }
+  .adm-table, .adm-table tbody, .adm-table tr, .adm-table td { display: block; width: 100%; }
+  .adm-table thead { display: none; }
+  .adm-table tbody tr { display: flex; flex-direction: column; margin-bottom: 12px; padding: 10px 14px; background: #fff; border: 1px solid #e3ddd0; border-left: 3px solid var(--gold); }
+  .adm-table tbody tr:hover { background: #fff; }
+  .adm-table tr.is-readonly td { background: none; }
+  .adm-table tr.is-readonly { background: #faf9f6; }
+  .adm-table td { display: grid; grid-template-columns: 104px minmax(0, 1fr); gap: 10px; align-items: center; padding: 7px 0; border-bottom: 1px dashed #efeae0; text-align: left !important; }
+  .adm-table td:last-child { border-bottom: 0; }
+  .adm-table td::before { content: attr(data-label); font-size: .64rem; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+  .adm-table td > * { min-width: 0; }
+  .adm-table .adm-cell-contact { grid-template-columns: 1fr; }
+  .adm-table .adm-cell-contact::before { display: none; }
+  .adm-table .adm-cell-contact strong { font-size: 1rem; }
+  .adm-table .adm-cell-date { order: -1; font-size: .78rem; color: var(--muted); }
+  .adm-table select { width: 100%; max-width: none; font-size: 16px; }
+  .adm-table-sponsors td { grid-template-columns: 1fr; gap: 4px; align-items: start; }
+  .adm-table-sponsors td > strong, .adm-table-sponsors td > a, .adm-table-sponsors td > span.adm-muted { display: block; }
+  .adm-toggle { display: flex; }
+  .adm-table-sponsors .adm-cell-logo { grid-template-columns: 1fr; }
+  .adm-table-sponsors .adm-cell-logo::before { display: none; }
+  .adm-table-sponsors td[data-label="Parties"] { grid-template-columns: 1fr; }
+  .adm-table-sponsors td[data-label="Parties"]::before { margin-bottom: 4px; }
+  .adm-teams { min-width: 0; }
+  .adm-team-list { min-width: 0; }
+  .adm-slot { width: 100%; font-size: 14px; }
+  .adm-btn-add { width: 100%; }
+  .adm-rep { min-width: 0; font-size: 16px; }
+  .adm-toggle { width: 100%; }
+  .adm-toggle button { flex: 1; padding: 10px 6px; }
+  .adm-drawer { padding: 24px 18px; }
+  .adm-drawer dl { grid-template-columns: 96px 1fr; }
+  .adm-form .adm-field input, .adm-field select, .adm-field textarea { font-size: 16px; }
+}

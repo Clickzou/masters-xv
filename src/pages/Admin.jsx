@@ -233,6 +233,7 @@ export default function Admin() {
   const [open, setOpen] = useState(null)
   const [exporting, setExporting] = useState(false)
   const [adding, setAdding] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false) // menu du haut sur mobile
 
   const cfg = LISTS[tab]
   const me = userOf(password)
@@ -344,19 +345,22 @@ export default function Admin() {
           <img src="/logo/masters-xv-logo-couleur.svg" alt="" width="34" height="46" />
           <div><strong>Masters XV</strong><span>Connecté : {me || '—'}</span></div>
         </div>
-        <div className="adm-top-actions">
-          <button className="adm-btn" onClick={() => load(password)} disabled={busy}>{busy ? 'Actualisation…' : 'Actualiser'}</button>
+        <button type="button" className={`adm-burger${menuOpen ? ' is-open' : ''}`} aria-label="Menu" aria-expanded={menuOpen} onClick={() => setMenuOpen(o => !o)}>
+          <span /><span /><span />
+        </button>
+        <div className={`adm-top-actions${menuOpen ? ' is-open' : ''}`}>
+          <button className="adm-btn" onClick={() => { setMenuOpen(false); load(password) }} disabled={busy}>{busy ? 'Actualisation…' : 'Actualiser'}</button>
           <button className="adm-btn adm-btn-gold" disabled={!filtered.length || exporting}
-            onClick={async () => { setExporting(true); try { await exportExcel(cfg, filtered) } finally { setExporting(false) } }}>
+            onClick={async () => { setMenuOpen(false); setExporting(true); try { await exportExcel(cfg, filtered) } finally { setExporting(false) } }}>
             {exporting ? 'Export…' : `Exporter Excel (${filtered.length})`}
           </button>
-          <button className="adm-btn adm-btn-ghost" onClick={() => { session.del(PW_KEY); setPassword(''); setData(null); setError('') }}>Déconnexion</button>
+          <button className="adm-btn adm-btn-ghost" onClick={() => { setMenuOpen(false); session.del(PW_KEY); setPassword(''); setData(null); setError('') }}>Déconnexion</button>
         </div>
       </header>
 
       <nav className="adm-tabs" aria-label="Listes">
         {Object.entries(LISTS).map(([key, l]) => (
-          <button key={key} className={key === tab ? 'is-active' : ''} aria-current={key === tab} onClick={() => switchTab(key)}>
+          <button key={key} className={key === tab ? 'is-active' : ''} aria-current={key === tab} onClick={() => { setMenuOpen(false); switchTab(key) }}>
             {l.tab}{!l.hideCount && <span>{data[key].length}</span>}
           </button>
         ))}
@@ -428,18 +432,18 @@ export default function Admin() {
               <tbody>
                 {filtered.map(r => (
                   <tr key={r.id} onClick={() => setOpen(r.id)} className={`${r.status === 'annule' ? 'is-cancelled' : ''}${canEdit(me, tab, r) ? '' : ' is-readonly'}`}>
-                    <td className="nowrap">{fmtDate(r.created_at)}</td>
-                    <td>
+                    <td className="nowrap adm-cell-date" data-label="Date">{fmtDate(r.created_at)}</td>
+                    <td className="adm-cell-contact" data-label="Contact">
                       <strong>{r.first_name} {r.last_name}</strong>
                       {r.email && <a href={`mailto:${r.email}`} onClick={e => e.stopPropagation()}>{r.email}</a>}
                       {r.phone && <a href={`tel:${tel(r.phone)}`} onClick={e => e.stopPropagation()}>{r.phone}</a>}
                     </td>
                     {cfg.columns.map(([title, get, cls, interactive]) => (
-                      <td key={title} className={cls || undefined} onClick={interactive ? e => e.stopPropagation() : undefined}>
+                      <td key={title} data-label={title} className={cls || undefined} onClick={interactive ? e => e.stopPropagation() : undefined}>
                         {get(r, { me, patch, editable: canEdit(me, tab, r), mine: Boolean(r.invited_by) && sameName(r.invited_by, me), invites: data.invites, sponsors: data.sponsors })}
                       </td>
                     ))}
-                    <td onClick={e => e.stopPropagation()}>
+                    <td data-label="Statut" onClick={e => e.stopPropagation()}>
                       <select className={`adm-status is-${r.status}`} value={r.status} disabled={!canEdit(me, tab, r)} title={canEdit(me, tab, r) ? undefined : `Lecture seule : invité de ${r.invited_by}`} onChange={e => patch(r.id, { status: e.target.value })}>
                         {statusOptions}
                       </select>
@@ -562,7 +566,7 @@ function SponsorsPanel({ status, invites, me, onChange, onPlace }) {
       <h2 className="adm-h2">Sponsors et parties</h2>
       <p className="adm-muted adm-sub">Partie 1 : le représentant du sponsor + 3 invités (4 sans représentant). Chaque nouvelle partie compte 4 invités. Sur une place libre, choisissez l’un de vos invités (revendiqués avec « C’est moi »). Les places sont indicatives : une partie peut être dépassée, à arbitrer ensuite.</p>
       <div className="adm-table-wrap">
-        <table className="adm-table">
+        <table className="adm-table adm-table-sponsors">
           <thead><tr><th>Logo</th><th>Sponsor</th><th>Représentant</th><th>Parties</th><th>Statut</th><th>Modifié par</th></tr></thead>
           <tbody>
             {SPONSORS.map(sp => {
@@ -572,13 +576,13 @@ function SponsorsPanel({ status, invites, me, onChange, onPlace }) {
               const teams = teamsOf(status, slug)
               return (
                 <tr key={slug} className="is-static">
-                  <td><span className={`adm-logo${sp.dark ? ' is-dark' : ''}`}><img src={sp.logo} alt="" /></span></td>
-                  <td>
+                  <td className="adm-cell-logo"><span className={`adm-logo${sp.dark ? ' is-dark' : ''}`}><img src={sp.logo} alt="" /></span></td>
+                  <td data-label="Sponsor">
                     <strong>{sp.name}</strong>
                     <a href={`/invite/${slug}`} target="_blank" rel="noopener">/invite/{slug}</a>
                     <span className="adm-muted">{viaCard(slug)} inscrit(s) via sa carte</span>
                   </td>
-                  <td>
+                  <td data-label="Représentant">
                     {!noRep && <RepresentativeField key={`${slug}-${s?.representative || ''}`} value={s?.representative || ''} onSave={v => onChange(slug, { representative: v })} />}
                     <label className="adm-norep">
                       <input type="checkbox" checked={noRep}
@@ -586,7 +590,7 @@ function SponsorsPanel({ status, invites, me, onChange, onPlace }) {
                       Sans représentant (4 invités)
                     </label>
                   </td>
-                  <td>
+                  <td data-label="Parties">
                     <div className="adm-teams">
                       {Array.from({ length: teams }, (_, i) => {
                         const no = i + 1
@@ -633,13 +637,13 @@ function SponsorsPanel({ status, invites, me, onChange, onPlace }) {
                       {teams < 20 && <button type="button" className="adm-btn adm-btn-add" onClick={() => onChange(slug, { teams: teams + 1 })}>+ Créer une nouvelle partie</button>}
                     </div>
                   </td>
-                  <td>
+                  <td data-label="Statut">
                     <div className="adm-toggle" role="group" aria-label={`Statut de ${sp.name}`}>
                       <button type="button" className={s?.confirmed ? 'is-on' : ''} aria-pressed={Boolean(s?.confirmed)} onClick={() => !s?.confirmed && onChange(slug, { confirmed: true })}>Confirmé</button>
                       <button type="button" className={!s?.confirmed ? 'is-off' : ''} aria-pressed={!s?.confirmed} onClick={() => s?.confirmed && onChange(slug, { confirmed: false })}>Non confirmé</button>
                     </div>
                   </td>
-                  <td className="adm-muted">{s?.updated_by ? `${s.updated_by} · ${fmtDate(s.updated_at)}` : '—'}</td>
+                  <td data-label="Modifié par" className="adm-muted">{s?.updated_by ? `${s.updated_by} · ${fmtDate(s.updated_at)}` : '—'}</td>
                 </tr>
               )
             })}
