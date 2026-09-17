@@ -28,6 +28,7 @@ export const SPONSORS = [
   { name: 'McDonald’s', logo: '/sponsors/mcdonalds.png', url: 'https://www.mcdonalds.fr/' },
   { name: 'Plyz', logo: '/sponsors/plyz.png', url: 'https://plyz.io/', dark: true },
   { name: 'Turkish Airlines', logo: '/sponsors/turkish-airlines.png', url: 'https://www.turkishairlines.com/fr-fr/' },
+  { name: 'Golf de Palmola', logo: '/sponsors/golf-de-palmola.png', url: 'https://www.golfdepalmola.com/' },
 ]
 
 // Lien et QR code personnels de la carte d'invitation de chaque sponsor : https://masters-xv.fr/invite/<slug>
