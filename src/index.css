@@ -798,3 +798,33 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
 @media (max-width: 860px) { .adm-table-sponsors td > strong.adm-sp-name { display: flex; } }
 .adm-team { max-width: 280px; min-width: 220px; }
 @media (max-width: 860px) { .adm-team { max-width: none; min-width: 0; } }
+
+/* ——— Petits écrans et textes agrandis (réglage d'accessibilité du téléphone) : rien ne doit déborder ——— */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+body { overflow-x: clip; }
+.hero-text, .plyz-text, .plyz-brand { min-width: 0; max-width: 100%; }
+.plyz-inner { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); }
+.kicker, .hero h1, .hero-org, .hero-meta span, .section-title h2 { overflow-wrap: anywhere; }
+@media (max-width: 860px) {
+  .hero-inner { grid-template-columns: minmax(0, 1fr); width: 100%; }
+  .plyz-inner { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .nav-brand span { white-space: nowrap; font-size: min(.95rem, 4.2vw); letter-spacing: .06em; }
+  .nav-brand { gap: 8px; min-width: 0; }
+  .nav-brand img { width: 26px; height: auto; }
+  .lang-switch { font-size: min(.72rem, 3.2vw); }
+  .hero { padding-inline: 24px; }
+  .hero .kicker { letter-spacing: .18em; }
+  .hero h1 { font-size: min(2.4rem, 11vw); }
+  .hero-org { font-size: min(1.15rem, 5.4vw); }
+  .hero-org strong { letter-spacing: .06em; }
+  .hero-meta { letter-spacing: .12em; font-size: min(.78rem, 3.6vw); }
+  .countdown { flex-wrap: wrap; gap: 10px 18px; }
+  .countdown strong { font-size: min(1.7rem, 8vw); }
+  .countdown span { letter-spacing: .12em; font-size: min(.62rem, 2.9vw); }
+  .hero-actions { width: 100%; }
+  .hero-actions .btn { width: 100%; padding-inline: 12px; letter-spacing: .14em; white-space: normal; }
+  .kicker { letter-spacing: .2em; }
+  .store-btn { min-width: 0; }
+}
