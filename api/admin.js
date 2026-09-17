@@ -51,7 +51,7 @@ export default async function handler(req, res) {
     try {
       if (req.method === 'GET') return res.status(200).json({ items: await sponsorStatus.list() })
       if (req.method === 'PATCH') {
-        const { slug, confirmed, representative, hasRepresentative } = req.body || {}
+        const { slug, confirmed, representative, hasRepresentative, teams } = req.body || {}
         if (!sponsorBySlug(slug)) return res.status(400).json({ error: 'invalid' })
         const row = { slug, updated_by: me, updated_at: new Date().toISOString() }
         if (confirmed !== undefined) {
@@ -63,6 +63,13 @@ export default async function handler(req, res) {
           if (typeof hasRepresentative !== 'boolean') return res.status(400).json({ error: 'invalid' })
           row.has_representative = hasRepresentative
           if (!hasRepresentative) row.representative = null
+        }
+        if (teams !== undefined) {
+          if (!Number.isInteger(teams) || teams < 1 || teams > 20) return res.status(400).json({ error: 'invalid' })
+          // Supprimer une partie : seulement si plus personne n'y est placé
+          const inside = await LISTS.invites.query(`?select=id&team=eq.${encodeURIComponent(slug)}&team_no=gt.${teams}`)
+          if (inside.length) return res.status(409).json({ error: 'team-not-empty' })
+          row.teams = teams
         }
         const item = await sponsorStatus.save(row)
         return res.status(200).json({ item })
@@ -117,7 +124,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'PATCH') {
-      const { id, status, notes, claim, profile, team } = req.body || {}
+      const { id, status, notes, claim, profile, team, teamNo } = req.body || {}
       if (!isUuid(id)) return res.status(400).json({ error: 'id' })
       const patch = {}
       if (status !== undefined) {
@@ -133,7 +140,13 @@ export default async function handler(req, res) {
       if (guests && team !== undefined) {
         if (team !== null && !sponsorBySlug(team)) return res.status(400).json({ error: 'team' })
         // Pas de limite de places : une partie peut dépasser sa capacité, le tri se fait ensuite au tableau de bord
+        const no = team ? Number(teamNo ?? 1) : 1
+        if (team) {
+          const created = (await sponsorStatus.get(team))?.teams || 1
+          if (!Number.isInteger(no) || no < 1 || no > created) return res.status(400).json({ error: 'team' })
+        }
         patch.team = team
+        patch.team_no = no
       }
       if (!Object.keys(patch).length) return res.status(400).json({ error: 'empty' })
 

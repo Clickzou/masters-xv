@@ -89,6 +89,8 @@ alter table public.invites add column if not exists source text not null default
 alter table public.invites alter column email drop not null;
 -- Partie (équipe de golf) du sponsor dans laquelle l'invité est placé : slug du sponsor, 3 invités maximum
 alter table public.invites add column if not exists team text check (char_length(team) <= 80);
+-- Numéro de la partie du sponsor (Partie 1, Partie 2…)
+alter table public.invites add column if not exists team_no smallint not null default 1 check (team_no between 1 and 20);
 create index if not exists invites_created_at_idx on public.invites (created_at desc);
 
 drop trigger if exists invites_touch on public.invites;
@@ -113,6 +115,8 @@ create table if not exists public.sponsors (
 alter table public.sponsors add column if not exists representative text check (char_length(representative) <= 120);
 -- Sans représentant (ex. Plyz) : la partie compte 4 invités au lieu de 3
 alter table public.sponsors add column if not exists has_representative boolean not null default true;
+-- Nombre de parties créées pour le sponsor (le représentant joue dans la Partie 1)
+alter table public.sponsors add column if not exists teams smallint not null default 1 check (teams between 1 and 20);
 
 alter table public.sponsors enable row level security;
 revoke all on public.sponsors from anon, authenticated;

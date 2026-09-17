@@ -711,3 +711,12 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
 
 .adm-count.is-over { background: #f3e5e3; color: #8a1c10; }
 .adm-team-list li.is-extra { color: #8a1c10; }
+
+.adm-teams { display: grid; gap: 10px; min-width: 260px; }
+.adm-team-block { padding: 8px 10px; border: 1px solid #e3ddd0; background: #fcfbf8; }
+.adm-team-head { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 4px; }
+.adm-team-head strong { font-size: .82rem; color: var(--green); }
+.adm-team-head .adm-count { margin-top: 0; }
+.adm-slot { max-width: 100%; padding: 3px 6px; font: italic .78rem var(--sans); color: var(--muted); border: 1px dashed #cfc6b3; background: #fff; cursor: pointer; }
+.adm-btn-add { justify-self: start; color: var(--green); border-color: var(--gold); background: #fff; }
+.adm-btn-add:hover:not(:disabled) { background: #faf7ef; }
