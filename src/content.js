@@ -82,7 +82,7 @@ const fr = {
   programme: {
     title: 'Le programme de la journée',
     steps: [
-      { time: '8h00', title: 'Accueil & petit-déjeuner', text: 'Accueil des équipes autour d’un petit-déjeuner au club-house.' },
+      { time: '8h00', title: 'Accueil & English breakfast', text: 'Accueil des équipes au club-house autour d’un petit-déjeuner à l’anglaise : œufs brouillés, bacon, saucisses et haricots.' },
       { time: '8h30', title: 'Départ du tournoi', text: 'Shamble à 4 : toutes les équipes s’élancent sur le parcours.' },
       { time: 'Sur le parcours', title: 'Concours de drive & de précision', text: 'Deux défis pour les plus longs frappeurs et les plus adroits.' },
       { time: 'Sur le parcours', title: 'Buffet gourmand', text: 'Une halte conviviale au cœur du parcours, entre deux trous.' },
@@ -211,7 +211,7 @@ const en = {
   programme: {
     title: 'Programme of the day',
     steps: [
-      { time: '8:00 am', title: 'Welcome & breakfast', text: 'Teams are welcomed with breakfast at the clubhouse.' },
+      { time: '8:00 am', title: 'Welcome & English breakfast', text: 'Teams are welcomed at the clubhouse with a full English breakfast: scrambled eggs, bacon, sausages and beans.' },
       { time: '8:30 am', title: 'Tee-off', text: '4-player shamble: all teams head out onto the course.' },
       { time: 'On the course', title: 'Longest drive & nearest-the-pin', text: 'Two challenges for the longest hitters and the most accurate players.' },
       { time: 'On the course', title: 'Gourmet buffet', text: 'A friendly break in the middle of the course, between two holes.' },
