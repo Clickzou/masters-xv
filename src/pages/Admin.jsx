@@ -53,7 +53,7 @@ const LISTS = {
     stats: (list, { confirmedSponsors }) => {
       const teams = list.reduce((n, r) => n + teamCount(r.teams), 0)
       return [
-        ['Sponsors confirmés', `${confirmedSponsors} / ${SPONSORS.length}`, 'sponsors du site'],
+        ['Sponsors confirmés', `${confirmedSponsors} / ${SPONSORS.length}`, `${SPONSORS.length - confirmedSponsors} en attente`],
         ['Demandes', list.length, `${list.filter(r => r.status === 'nouveau').length} à traiter`],
         ['Équipes', teams, `${teams * 4} joueurs`],
         ['Reçus CERFA', list.filter(r => r.needs_receipt).length, 'demandés'],
@@ -578,7 +578,7 @@ function SponsorsPanel({ status, invites, me, onChange, onPlace }) {
                 <tr key={slug} className="is-static">
                   <td className="adm-cell-logo"><span className={`adm-logo${sp.dark ? ' is-dark' : ''}`}><img src={sp.logo} alt="" /></span></td>
                   <td data-label="Sponsor">
-                    <strong>{sp.name}</strong>
+                    <strong className={`adm-sp-name${s?.confirmed ? ' is-confirmed' : ''}`}>{s?.confirmed && <span className="adm-check" aria-label="Confirmé" title="Sponsor confirmé">✓</span>}{sp.name}</strong>
                     <a href={`/invite/${slug}`} target="_blank" rel="noopener">/invite/{slug}</a>
                     <span className="adm-muted">{viaCard(slug)} inscrit(s) via sa carte</span>
                   </td>

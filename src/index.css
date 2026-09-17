@@ -790,3 +790,9 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
   .adm-drawer dl { grid-template-columns: 96px 1fr; }
   .adm-form .adm-field input, .adm-field select, .adm-field textarea { font-size: 16px; }
 }
+
+.adm-sp-name { display: inline-flex; align-items: center; gap: 8px; }
+.adm-check { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; font-size: .75rem; font-weight: 700; line-height: 1; color: #fff; background: #2e8b4e; border-radius: 50%; flex-shrink: 0; }
+@media (max-width: 860px) { .adm-table-sponsors td > strong.adm-sp-name { display: flex; } }
+.adm-table td strong.adm-sp-name { display: inline-flex; }
+@media (max-width: 860px) { .adm-table-sponsors td > strong.adm-sp-name { display: flex; } }
