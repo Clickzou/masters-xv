@@ -17,7 +17,7 @@ export const SHARED = {
 // logo : fichier dans public/sponsors/ · dark: true → logo blanc affiché sur une carte verte
 export const SPONSORS = [
   { name: 'Midi Olympique', logo: '/sponsors/midi-olympique.png', url: 'https://www.midi-olympique.fr/' },
-  { name: 'CTA Meeting & Events', logo: '/sponsors/cta-meeting-events.png', url: 'https://ctameetingevents.fr/' },
+  { name: 'CTA Events', logo: '/sponsors/cta-meeting-events.png', url: 'https://ctameetingevents.fr/' },
   { name: 'Clickzou', logo: '/sponsors/clickzou.png', url: 'https://www.clickzou.fr/' },
   { name: 'Joaillerie Piquemal Baron', logo: '/sponsors/joaillerie-piquemal-baron.png', url: 'https://www.joailleriepiquemalbaron.com/' },
   { name: 'Intermarché Garidech', logo: '/sponsors/intermarche-garidech.png', url: 'https://www.intermarche.com/magasins/11126/garidech-31380/infos-pratiques' },
