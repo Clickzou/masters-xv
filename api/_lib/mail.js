@@ -125,3 +125,72 @@ ${rowsTable([
     text: `${t.hello(d.first_name)}\n\n${t.intro.replace(/<[^>]+>/g, '')}\n\n${t.event}\n${t.programme.join('\n')}\n\n${t.outro}`,
   }
 }
+
+// ——— Invités (gratuit)
+const PARTICIPATION = {
+  fr: { golf: 'Tournoi de golf, déjeuner & remise des prix', dejeuner: 'Déjeuner & remise des prix uniquement' },
+  en: { golf: 'Golf tournament, lunch & prize-giving', dejeuner: 'Lunch & prize-giving only' },
+}
+
+export function guestOrganiserEmail(d, { adminUrl } = {}) {
+  const participation = PARTICIPATION.fr[d.participation] || d.participation
+  const rows = [
+    ['Nom', `${d.first_name} ${d.last_name}`],
+    ['Société', d.company],
+    ['E-mail', d.email],
+    ['Téléphone', d.phone],
+    ['Participation', participation],
+    ['Accompagnants', String(d.companions ?? 0)],
+    ['Index / niveau', d.level],
+    ['Régime / allergies', d.diet],
+    ['Langue', d.lang === 'en' ? 'Anglais' : 'Français'],
+    ['Message', d.message],
+  ]
+  const body = `<p style="margin:0 0 6px;font-size:17px;"><strong>Nouvelle réponse d’un invité</strong></p>
+<p style="margin:0;color:#5B6A60;">Répondez directement à cet e-mail pour écrire à l’invité.</p>
+${rowsTable(rows)}
+${adminUrl ? `<p style="text-align:center;margin:24px 0 4px;"><a href="${adminUrl}" style="display:inline-block;background:${GOLD};color:${GREEN};text-decoration:none;font-weight:bold;letter-spacing:2px;font-size:12px;padding:13px 26px;">OUVRIR LE TABLEAU DE BORD</a></p>` : ''}`
+  return {
+    subject: `Invité Masters XV – ${d.first_name} ${d.last_name}${d.company ? ` (${d.company})` : ''} – ${participation}`,
+    html: layout({ preheader: `${d.first_name} ${d.last_name} – ${participation}`, title: 'Réponse d’un invité', body }),
+    text: rows.map(([k, v]) => `${k} : ${v || '-'}`).join('\n'),
+  }
+}
+
+const GUEST = {
+  fr: {
+    subject: 'Masters XV – Merci pour votre réponse',
+    intro: 'Merci d’avoir répondu à notre invitation au <strong>Masters XV</strong>. Nous avons bien noté votre présence et l’équipe organisatrice vous enverra prochainement les informations pratiques.',
+    recap: 'Votre réponse',
+    labels: ['Participation', 'Accompagnants', 'Régime / allergies'],
+  },
+  en: {
+    subject: 'Masters XV – Thank you for your reply',
+    intro: 'Thank you for replying to our invitation to <strong>Masters XV</strong>. We have noted your attendance and the organising team will send you the practical details shortly.',
+    recap: 'Your reply',
+    labels: ['Attendance', 'Accompanying guests', 'Dietary requirements'],
+  },
+}
+
+export function guestEmail(d) {
+  const lang = d.lang === 'en' ? 'en' : 'fr'
+  const t = { ...CONFIRM[lang], ...GUEST[lang] }
+  const body = `<p style="margin:0 0 14px;">${esc(t.hello(d.first_name))}</p>
+<p style="margin:0 0 20px;">${t.intro}</p>
+<p style="margin:0;font-family:Georgia,serif;font-size:18px;color:${GREEN};">${t.recap}</p>
+${rowsTable([
+    [t.labels[0], PARTICIPATION[lang][d.participation]],
+    [t.labels[1], String(d.companions ?? 0)],
+    [t.labels[2], d.diet],
+  ])}
+<p style="margin:22px 0 6px;font-family:Georgia,serif;font-size:18px;color:${GREEN};">${t.when}</p>
+<p style="margin:0 0 8px;">${esc(t.event)}</p>
+<ul style="margin:0 0 20px;padding-left:18px;color:#1C2A22;">${t.programme.map(p => `<li style="margin:3px 0;">${esc(p)}</li>`).join('')}</ul>
+<p style="margin:0 0 16px;">${t.outro}</p>
+<p style="margin:0;font-family:Georgia,serif;font-style:italic;color:${GREEN};">${t.sign}</p>`
+  return {
+    subject: t.subject,
+    html: layout({ preheader: t.subject, title: t.title, body }),
+    text: `${t.hello(d.first_name)}\n\n${t.intro.replace(/<[^>]+>/g, '')}\n\n${t.event}\n${t.programme.join('\n')}\n\n${t.outro}`,
+  }
+}

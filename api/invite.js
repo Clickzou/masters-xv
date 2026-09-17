@@ -1,6 +1,6 @@
-// Formulaire d'inscription : enregistrement Supabase + e-mails Resend (alerte organisateurs, confirmation participant)
+// Formulaire des invités (gratuit) : enregistrement Supabase « invites » + e-mails Resend
 import { dbConfigured, LISTS } from './_lib/db.js'
-import { mailConfigured, organisers, sendMail, organiserEmail, participantEmail } from './_lib/mail.js'
+import { mailConfigured, organisers, sendMail, guestOrganiserEmail, guestEmail } from './_lib/mail.js'
 
 const clip = (v, max) => {
   const s = String(v ?? '').trim()
@@ -13,21 +13,21 @@ export default async function handler(req, res) {
   const d = req.body || {}
   if (d.website) return res.status(200).json({ ok: true }) // robot : ignoré sans le signaler
 
+  const companions = Number.parseInt(d.companions, 10)
   const row = {
     first_name: clip(d.firstName, 120),
     last_name: clip(d.lastName, 120),
     company: clip(d.company, 200),
     email: clip(d.email, 254),
     phone: clip(d.phone, 40),
-    offer: ['sponsor', 'equipe'].includes(d.offer) ? d.offer : null,
-    offer_label: clip(d.offerLabel, 120),
-    teams: clip(d.teams, 20),
-    level: clip(d.players, 200),
+    participation: ['golf', 'dejeuner'].includes(d.participation) ? d.participation : null,
+    companions: companions >= 0 && companions <= 3 ? companions : 0,
+    level: clip(d.level, 200),
+    diet: clip(d.diet, 300),
     message: clip(d.message, 4000),
-    needs_receipt: Boolean(d.needsReceipt),
     lang: d.lang === 'en' ? 'en' : 'fr',
   }
-  const required = ['first_name', 'last_name', 'company', 'phone', 'offer', 'teams', 'level', 'message']
+  const required = ['first_name', 'last_name', 'phone', 'participation']
   if (required.some(k => !row[k]) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email || '')) {
     return res.status(400).json({ error: 'invalid' })
   }
@@ -38,10 +38,10 @@ export default async function handler(req, res) {
   let stored = false
   if (dbConfigured()) {
     try {
-      await LISTS.partenaires.insert(row)
+      await LISTS.invites.insert(row)
       stored = true
     } catch (err) {
-      console.error('[inscription] enregistrement impossible', err.message)
+      console.error('[invite] enregistrement impossible', err.message)
     }
   }
 
@@ -52,16 +52,15 @@ export default async function handler(req, res) {
     const adminUrl = host ? `https://${host}/admin` : undefined
     const jobs = []
     if (organisers().length) {
-      const m = organiserEmail(row, { adminUrl })
+      const m = guestOrganiserEmail(row, { adminUrl })
       jobs.push(sendMail({ to: organisers(), replyTo: row.email, ...m }).then(() => { alerted = true }))
     }
-    const c = participantEmail(row)
+    const c = guestEmail(row)
     jobs.push(sendMail({ to: [row.email], replyTo: organisers()[0], ...c }))
     const results = await Promise.allSettled(jobs)
-    results.filter(r => r.status === 'rejected').forEach(r => console.error('[inscription] e-mail', r.reason?.message))
+    results.filter(r => r.status === 'rejected').forEach(r => console.error('[invite] e-mail', r.reason?.message))
   }
 
-  // La demande est considérée reçue si elle est enregistrée ou si les organisateurs ont été prévenus
   if (!stored && !alerted) return res.status(502).json({ error: 'failed' })
   return res.status(200).json({ ok: true })
 }

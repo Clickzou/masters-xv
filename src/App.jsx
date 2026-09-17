@@ -11,6 +11,9 @@ const legalSlug = () => {
   return LEGAL_SLUGS.includes(slug) ? slug : null
 }
 
+// Page des invités (lien de la carte d'invitation, non référencée)
+const isGuestPage = () => /^\/invite\/?$/.test(window.location.pathname)
+
 export default function App() {
   const [lang, setLang] = useState(detectLang)
   const [scrolled, setScrolled] = useState(false)
@@ -18,14 +21,24 @@ export default function App() {
   const [notice, setNotice] = useState(false)
   const t = CONTENT[lang]
   const slug = legalSlug()
+  const guest = !slug && isGuestPage()
   const base = slug ? '/' : '' // liens d'ancre vers l'accueil depuis une page légale
 
   // Langue, titre et description de la page
   useEffect(() => {
     document.documentElement.lang = lang
-    document.title = slug ? `${LEGAL[lang][slug].title} – Masters XV` : t.meta.title
+    document.title = slug ? `${LEGAL[lang][slug].title} – Masters XV` : guest ? t.guest.meta.title : t.meta.title
     document.querySelector('meta[name="description"]')?.setAttribute('content', t.meta.description)
-  }, [lang, slug, t])
+  }, [lang, slug, guest, t])
+
+  // Page des invités : lien privé, non référencé
+  useEffect(() => {
+    if (!guest) return
+    const meta = document.createElement('meta')
+    meta.name = 'robots'; meta.content = 'noindex, nofollow'
+    document.head.appendChild(meta)
+    return () => meta.remove()
+  }, [guest])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -73,14 +86,14 @@ export default function App() {
           </button>
         </div>
         <ul>
-          {t.nav.items.map(([id, label]) => (
+          {t.nav.items.filter(([id]) => !(guest && id === 'partenaires')).map(([id, label]) => (
             <li key={id}><a href={`${base}#${id}`} onClick={() => setMenuOpen(false)}>{label}</a></li>
           ))}
-          <li><a href={`${base}#inscription`} className="nav-cta" onClick={() => setMenuOpen(false)}>{t.nav.cta}</a></li>
+          <li><a href={`${base}#inscription`} className="nav-cta" onClick={() => setMenuOpen(false)}>{guest ? t.guest.navCta : t.nav.cta}</a></li>
         </ul>
       </nav>
 
-      {slug ? <LegalPage slug={slug} /> : <Home />}
+      {slug ? <LegalPage slug={slug} /> : <Home guest={guest} />}
 
       <footer className="footer">
         <img src="/logo/masters-xv-logo-1couleur-or.svg" alt="" width="70" height="95" />

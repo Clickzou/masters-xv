@@ -48,3 +48,43 @@ alter function public.inscriptions_touch() set search_path = '';
 -- seules les fonctions serveur du site (clé service_role, jamais exposée) peuvent lire et écrire.
 alter table public.inscriptions enable row level security;
 revoke all on public.inscriptions from anon, authenticated;
+
+
+-- ————————————————————————————————————————————————————————————————
+-- Invités (gratuit) : table séparée des partenaires payants.
+-- Le fichier entier peut être relancé sans risque (rien n'est effacé).
+
+create table if not exists public.invites (
+  id            uuid primary key default gen_random_uuid(),
+  created_at    timestamptz not null default now(),
+  updated_at    timestamptz not null default now(),
+
+  first_name    text not null check (char_length(first_name) between 1 and 120),
+  last_name     text not null check (char_length(last_name) between 1 and 120),
+  company       text check (char_length(company) <= 200),
+  email         text not null check (char_length(email) <= 254),
+  phone         text check (char_length(phone) <= 40),
+
+  participation text not null check (participation in ('golf', 'dejeuner')),
+  companions    smallint not null default 0 check (companions between 0 and 3),
+  level         text check (char_length(level) <= 200),
+  diet          text check (char_length(diet) <= 300),
+  message       text check (char_length(message) <= 4000),
+  lang          text not null default 'fr' check (lang in ('fr', 'en')),
+  invited_by    text check (char_length(invited_by) <= 120), -- prénom et nom de l'organisateur, renseigné depuis le tableau de bord
+
+  -- Suivi par les organisateurs
+  status        text not null default 'nouveau'
+                check (status in ('nouveau', 'confirme', 'annule')),
+  notes         text check (char_length(notes) <= 4000)
+);
+
+alter table public.invites add column if not exists invited_by text check (char_length(invited_by) <= 120);
+create index if not exists invites_created_at_idx on public.invites (created_at desc);
+
+drop trigger if exists invites_touch on public.invites;
+create trigger invites_touch before update on public.invites
+for each row execute function public.inscriptions_touch();
+
+alter table public.invites enable row level security;
+revoke all on public.invites from anon, authenticated;

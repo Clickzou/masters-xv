@@ -3,6 +3,7 @@ import { useT } from '../i18n.jsx'
 import Countdown from '../components/Countdown.jsx'
 import Fairways from '../components/Fairways.jsx'
 import RegistrationForm from '../components/RegistrationForm.jsx'
+import GuestForm from '../components/GuestForm.jsx'
 import SponsorsCarousel from '../components/SponsorsCarousel.jsx'
 import Gallery from '../components/Gallery.jsx'
 import HeroBackdrop from '../components/HeroBackdrop.jsx'
@@ -27,7 +28,8 @@ function SectionTitle({ kicker, title, light }) {
   )
 }
 
-export default function Home() {
+// guest : page des invités (/invite), identique mais sans les formules payantes
+export default function Home({ guest = false }) {
   const t = useT()
   const { event } = t
 
@@ -51,7 +53,7 @@ export default function Home() {
         <div className="hero-inner">
           <img className="hero-logo" src="/logo/masters-xv-logo-couleur.svg" alt={t.hero.logoAlt} width="880" height="1190" />
           <div className="hero-text">
-            <p className="kicker">{t.hero.kicker}</p>
+            <p className="kicker">{guest ? t.guest.heroKicker : t.hero.kicker}</p>
             <h1>{t.hero.title1}<br /><em>{t.hero.title2}</em></h1>
             <p className="hero-org">{t.hero.organisedBy} <strong>CTA Events</strong></p>
             <div className="hero-meta">
@@ -61,7 +63,7 @@ export default function Home() {
             </div>
             <Countdown target={event.startsAt} />
             <div className="hero-actions">
-              <a className="btn btn-gold" href="#inscription">{t.hero.ctaPrimary}</a>
+              <a className="btn btn-gold" href="#inscription">{guest ? t.guest.ctaPrimary : t.hero.ctaPrimary}</a>
               <a className="btn btn-ghost" href="#programme">{t.hero.ctaSecondary}</a>
             </div>
           </div>
@@ -158,8 +160,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ——— Partenaires ——— */}
-      <section id="partenaires" className="section paper">
+      {/* ——— Partenaires (masqué pour les invités) ——— */}
+      {!guest && <section id="partenaires" className="section paper">
         <div className="container">
           <SectionTitle kicker={t.partners.kicker} title={t.partners.title} />
           <p className="lead reveal">{t.partners.lead}</p>
@@ -190,16 +192,16 @@ export default function Home() {
             <strong>Golf de Palmola</strong>
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* ——— Inscription ——— */}
       <section id="inscription" className="section green inscription">
         <div className="container narrow">
-          <SectionTitle kicker={t.inscription.kicker} title={t.inscription.title} light />
+          <SectionTitle kicker={guest ? t.guest.kicker : t.inscription.kicker} title={guest ? t.guest.title : t.inscription.title} light />
           <p className="lead is-light reveal">
-            {t.inscription.lead}{event.registrationDeadline ? ` (${t.inscription.before} ${event.registrationDeadline})` : ''}.
+            {guest ? t.guest.lead : t.inscription.lead}{event.registrationDeadline ? ` (${t.inscription.before} ${event.registrationDeadline})` : ''}.
           </p>
-          <RegistrationForm />
+          {guest ? <GuestForm /> : <RegistrationForm />}
         </div>
         <Fairways className="footer-fairways" base="var(--green-deep)" />
       </section>

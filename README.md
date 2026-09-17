@@ -3,9 +3,14 @@
 Site vitrine et d'inscription du tournoi **Masters XV – Le tournoi des légendes Midi Olympique** (mercredi 14 octobre 2026, golf de Palmola), en français et en anglais.
 
 - React + Vite, hébergé sur Vercel
+- Deux parcours séparés :
+  - **Partenaires payants** (sponsors, équipes) : page d'accueil `/`, table Supabase `inscriptions`
+  - **Invités gratuits** : page miroir **`/invite`** sans les prix (non référencée), table Supabase `invites`
 - Inscriptions enregistrées dans **Supabase** (région Francfort)
 - E-mails envoyés avec **Resend** : alerte aux organisateurs + confirmation au participant (FR/EN)
-- Tableau de bord des inscriptions sur **/admin** (connexion e-mail + mot de passe, export Excel)
+- Tableau de bord sur **/admin** : onglets « Partenaires payants » et « Invités », export Excel
+  - Connexion : prénom et nom + mot de passe commun
+  - Onglet Invités : l'organisateur qui a invité quelqu'un clique sur « C'est moi » ; lui seul peut ensuite modifier ou supprimer cet invité (les autres le voient en lecture seule)
 
 ## Modifier les contenus
 
@@ -16,7 +21,7 @@ Site vitrine et d'inscription du tournoi **Masters XV – Le tournoi des légend
 
 ### 1. Supabase
 
-1. Projet `masters-xv` → **SQL Editor** → coller le contenu de [`supabase/schema.sql`](supabase/schema.sql) → **Run**.
+1. Projet `masters-xv` → **SQL Editor** → coller le contenu de [`supabase/schema.sql`](supabase/schema.sql) → **Run**. Le fichier peut être relancé sans risque (il crée la table `invites` si elle manque, sans rien effacer).
 2. **Project Settings → API** : noter l'URL du projet et la clé **service_role** (secrète, jamais dans le code).
 
 ### 2. Resend
@@ -36,8 +41,7 @@ Site vitrine et d'inscription du tournoi **Masters XV – Le tournoi des légend
 | `RESEND_API_KEY` | clé API Resend |
 | `INSCRIPTION_FROM` | `Masters XV <inscriptions@masters-xv.fr>` |
 | `INSCRIPTION_TO` | adresses des organisateurs, séparées par des virgules |
-| `ADMIN_EMAIL` | e-mail de connexion au tableau de bord |
-| `ADMIN_PASSWORD` | mot de passe du tableau de bord (10 caractères minimum) |
+| `ADMIN_PASSWORD` | mot de passe commun du tableau de bord (10 caractères minimum) |
 
 ### 4. Domaine masters-xv.fr (o2switch → Vercel)
 
@@ -63,4 +67,4 @@ Les fonctions `/api` (formulaire, tableau de bord) tournent sur Vercel ou avec `
 ## Visuels
 
 - Logo vectoriel et variantes : `../logo-vectoriel/`
-- Invitation et image de partage (`public/og-image.png`) : `../invitation/export.mjs`
+- Cartes d'invitation et image de partage (`public/og-image.png`) : `../invitation/export.mjs` → `partenaires/` (QR code vers `/#inscription`) et `invites/` (QR code vers `/invite`)

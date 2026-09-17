@@ -474,6 +474,7 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
 .footer-legal a, .footer-legal button { background: none; border: 0; padding: 0; cursor: pointer; font: 500 .72rem var(--sans); letter-spacing: .08em; color: rgba(247, 242, 230, .75); text-decoration: none; transition: color .3s; }
 .footer-legal a:hover, .footer-legal button:hover { color: var(--gold); }
 .toast { position: fixed; left: 50%; bottom: 24px; z-index: 120; transform: translateX(-50%); padding: 12px 22px; background: var(--green-deep); color: var(--ivory); border: 1px solid var(--gold); font-size: .85rem; animation: lb-in .3s; }
+.form label small { font-size: .9em; letter-spacing: .08em; text-transform: none; font-weight: 500; color: rgba(247, 242, 230, .5); }
 .form-required { margin: -8px 0 22px; font-size: .74rem; color: rgba(247, 242, 230, .6); }
 .form label:not(.check):not(.hp)::after { content: none; }
 .form-grid > label:not(.check):not(.hp) { position: relative; }
@@ -643,3 +644,24 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
 .adm-field textarea { resize: vertical; text-transform: none; letter-spacing: 0; font-weight: 400; }
 .adm-field .adm-btn { justify-self: start; }
 .adm-delete { margin-top: 10px; padding: 0; border: 0; background: none; color: #b03a2e; font-size: .82rem; text-decoration: underline; cursor: pointer; }
+.adm-tabs { display: flex; gap: 4px; padding: 0 clamp(16px, 3vw, 32px); background: var(--green); overflow-x: auto; }
+.adm-tabs button { display: flex; align-items: center; gap: 8px; padding: 14px 18px; font: 600 .78rem var(--sans); letter-spacing: .08em; text-transform: uppercase; color: rgba(247, 242, 230, .7); background: none; border: 0; border-bottom: 3px solid transparent; cursor: pointer; white-space: nowrap; }
+.adm-tabs button:hover { color: var(--ivory); }
+.adm-tabs button.is-active { color: var(--gold); border-bottom-color: var(--gold); }
+.adm-tabs span { min-width: 22px; padding: 2px 7px; font-size: .7rem; letter-spacing: 0; color: var(--green-deep); background: rgba(247, 242, 230, .75); border-radius: 10px; }
+.adm-tabs button.is-active span { background: var(--gold); }
+.adm-offer.is-golf { background: var(--green); color: var(--gold); }
+.adm-offer.is-dejeuner { background: #efe7d4; color: var(--green); }
+
+.adm-login select { padding: 12px; font: 1rem var(--sans); color: var(--ivory); background: var(--green-deep); border: 1px solid rgba(247, 242, 230, .35); }
+.adm-login select:focus { outline: none; border-color: var(--gold); }
+.adm-hint { margin: 0 0 16px; padding: 12px 16px; font-size: .88rem; background: #fff; border: 1px solid #e3ddd0; border-left: 3px solid var(--gold); color: var(--ink); }
+.adm-claim { padding: 5px 10px; font: 600 .74rem var(--sans); color: var(--green-deep); background: var(--gold); border: 0; cursor: pointer; white-space: nowrap; }
+.adm-claim:hover { filter: brightness(1.05); }
+.adm-host { font-weight: 600; }
+.adm-host.is-me { color: var(--green); }
+.adm-unclaim { margin-left: 8px; padding: 0; font: 500 .72rem var(--sans); letter-spacing: 0; text-transform: none; color: var(--muted); background: none; border: 0; text-decoration: underline; cursor: pointer; }
+.adm-field .adm-claim, .adm-field .adm-host { justify-self: start; font-size: .85rem; letter-spacing: 0; text-transform: none; }
+.adm-table tr.is-readonly td { background: #faf9f6; }
+.adm-status:disabled { cursor: not-allowed; opacity: .75; }
+.adm-readonly { margin: 0 0 14px; padding: 10px 12px; font-size: .85rem; background: #f6f1e4; border-left: 3px solid var(--gold); color: var(--ink); }
