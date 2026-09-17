@@ -720,3 +720,5 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
 .adm-slot { max-width: 100%; padding: 3px 6px; font: italic .78rem var(--sans); color: var(--muted); border: 1px dashed #cfc6b3; background: #fff; cursor: pointer; }
 .adm-btn-add { justify-self: start; color: var(--green); border-color: var(--gold); background: #fff; }
 .adm-btn-add:hover:not(:disabled) { background: #faf7ef; }
+
+.adm-add-actions { display: flex; flex-wrap: wrap; gap: 8px; }

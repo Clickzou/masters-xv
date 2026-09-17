@@ -367,7 +367,10 @@ export default function Admin() {
         {tab === 'invites' && (
           <div className="adm-hint adm-hint-row">
             <p>Les invités s’inscrivent eux-mêmes avec la carte d’invitation. Choisissez leur <strong>profil</strong> (golfeur ou joueur de rugby) et, si c’est vous qui les avez invités, cliquez sur <strong>« C’est moi »</strong> : vous seul pourrez ensuite les modifier.</p>
-            <button className="adm-btn adm-btn-gold" onClick={() => setAdding(true)}>+ Ajouter un rugbyman</button>
+            <div className="adm-add-actions">
+              <button className="adm-btn adm-btn-gold" onClick={() => setAdding('golfeur')}>+ Ajouter un invité</button>
+              <button className="adm-btn adm-btn-gold" onClick={() => setAdding('rugbyman')}>+ Ajouter un rugbyman</button>
+            </div>
           </div>
         )}
 
@@ -450,6 +453,7 @@ export default function Admin() {
 
       {adding && (
         <AddPlayer
+          profile={adding}
           onClose={() => setAdding(false)}
           onSave={async body => {
             const { item } = await api(password, 'invites', 'POST', body)
@@ -501,8 +505,9 @@ export default function Admin() {
 }
 
 // Ajout manuel d'un joueur de rugby dans la liste des invités
-function AddPlayer({ onClose, onSave }) {
-  const [d, setD] = useState({ firstName: '', lastName: '', company: '', email: '', phone: '', participation: 'golf', companions: '0', level: '', status: 'confirme', profile: 'rugbyman', notes: '' })
+// profile : « golfeur » (bouton Ajouter un invité) ou « rugbyman » (bouton Ajouter un rugbyman)
+function AddPlayer({ profile = 'rugbyman', onClose, onSave }) {
+  const [d, setD] = useState({ firstName: '', lastName: '', company: '', email: '', phone: '', participation: 'golf', companions: '0', level: '', status: 'confirme', profile, notes: '' })
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const set = k => e => setD(v => ({ ...v, [k]: e.target.value }))
@@ -515,7 +520,7 @@ function AddPlayer({ onClose, onSave }) {
       <aside className="adm-drawer" onClick={e => e.stopPropagation()} aria-label="Ajouter un joueur">
         <button className="adm-close" onClick={onClose} aria-label="Fermer">×</button>
         <p className="adm-kicker">Invités · ajout manuel</p>
-        <h2>Ajouter un rugbyman</h2>
+        <h2>{profile === 'rugbyman' ? 'Ajouter un rugbyman' : 'Ajouter un invité'}</h2>
         <form className="adm-form" onSubmit={submit}>
           <label className="adm-field">Prénom *<input required value={d.firstName} onChange={set('firstName')} autoFocus /></label>
           <label className="adm-field">Nom *<input required value={d.lastName} onChange={set('lastName')} /></label>
