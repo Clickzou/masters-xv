@@ -30,7 +30,8 @@ const clip = (v, max) => {
   return s ? s.slice(0, max) : null
 }
 const PROFILES = ['golfeur', 'rugbyman']
-export const TEAM_GUESTS = 3 // invités par partie de sponsor, en plus du représentant
+// Partie d'un sponsor : 4 joueurs = représentant + 3 invités, ou 4 invités s'il n'a pas de représentant
+export const teamCapacity = sponsorRow => (sponsorRow?.has_representative === false ? 4 : 3)
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store')
@@ -52,7 +53,7 @@ export default async function handler(req, res) {
     try {
       if (req.method === 'GET') return res.status(200).json({ items: await sponsorStatus.list() })
       if (req.method === 'PATCH') {
-        const { slug, confirmed, representative } = req.body || {}
+        const { slug, confirmed, representative, hasRepresentative } = req.body || {}
         if (!sponsorBySlug(slug)) return res.status(400).json({ error: 'invalid' })
         const row = { slug, updated_by: me, updated_at: new Date().toISOString() }
         if (confirmed !== undefined) {
@@ -60,6 +61,11 @@ export default async function handler(req, res) {
           row.confirmed = confirmed
         }
         if (representative !== undefined) row.representative = clip(representative, 120)
+        if (hasRepresentative !== undefined) {
+          if (typeof hasRepresentative !== 'boolean') return res.status(400).json({ error: 'invalid' })
+          row.has_representative = hasRepresentative
+          if (!hasRepresentative) row.representative = null
+        }
         const item = await sponsorStatus.save(row)
         return res.status(200).json({ item })
       }
@@ -129,9 +135,9 @@ export default async function handler(req, res) {
       if (guests && team !== undefined) {
         if (team !== null && !sponsorBySlug(team)) return res.status(400).json({ error: 'team' })
         if (team) {
-          // Partie d'un sponsor : 3 invités maximum en plus du représentant
+          // Partie d'un sponsor : 3 invités (+ représentant) ou 4 invités s'il n'a pas de représentant
           const taken = await list.query(`?select=id&team=eq.${encodeURIComponent(team)}&status=neq.annule&id=neq.${id}`)
-          if (taken.length >= TEAM_GUESTS) return res.status(409).json({ error: 'team-full' })
+          if (taken.length >= teamCapacity(await sponsorStatus.get(team))) return res.status(409).json({ error: 'team-full' })
         }
         patch.team = team
       }

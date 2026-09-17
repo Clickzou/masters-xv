@@ -45,6 +45,7 @@ export const LISTS = {
 // Statut des sponsors du site (table « sponsors », une ligne par slug de sponsors dans src/content.js)
 export const sponsorStatus = {
   list: () => call('sponsors', '?select=*'),
+  get: slug => call('sponsors', `?slug=eq.${encodeURIComponent(slug)}&select=*`).then(r => r[0] || null),
   save: row => call('sponsors', '?on_conflict=slug', { method: 'POST', body: row, prefer: 'resolution=merge-duplicates,return=representation' }).then(r => r[0]),
 }
 

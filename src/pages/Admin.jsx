@@ -27,7 +27,8 @@ const cleanName = s => String(s ?? '').replace(/\s+/g, ' ').replace(/:/g, '').tr
 const sameName = (a, b) => cleanName(a).toLowerCase() === cleanName(b).toLowerCase()
 const hostName = n => n || 'Non attribué'
 const cardName = slug => sponsorBySlug(slug)?.name || 'Midi Olympique'
-const TEAM_GUESTS = 3 // invités par partie, en plus du représentant du sponsor
+// Partie : représentant + 3 invités, ou 4 invités si le sponsor n'a pas de représentant
+const capacity = (sponsors, slug) => (sponsors?.[slug]?.has_representative === false ? 4 : 3)
 const TEAMS = Object.fromEntries(SPONSORS.map(sp => [sponsorSlug(sp), sp.name]))
 const inTeam = (invites, slug) => invites.filter(r => r.team === slug && r.status !== 'annule')
 const CARDS = Object.fromEntries(SPONSORS.filter(sp => sp.name !== 'Midi Olympique').map(sp => [sponsorSlug(sp), sp.name]))
@@ -84,10 +85,11 @@ const LISTS = {
     filter: { key: 'participation', all: 'Toutes les participations', options: PARTICIPATION },
     byHost: true,
     byCard: true,
-    stats: list => {
+    stats: (list, { sponsors }) => {
       const placed = list.filter(r => r.team).length
+      const places = SPONSORS.reduce((n, sp) => n + capacity(sponsors, sponsorSlug(sp)), 0)
       return [
-        ['Parties', `${placed} / ${SPONSORS.length * TEAM_GUESTS}`, `places d’invités occupées · ${SPONSORS.length} parties`],
+        ['Parties', `${placed} / ${places}`, `places d’invités occupées · ${SPONSORS.length} parties`],
         ['Réponses', list.length, `${list.filter(r => r.status === 'nouveau').length} à traiter`],
         ['Personnes', list.reduce((n, r) => n + people(r), 0), 'invités + accompagnants'],
         ['Golfeurs', list.filter(r => r.profile === 'golfeur').length, `${list.filter(r => !r.profile).length} profil(s) à définir`],
@@ -110,8 +112,9 @@ const LISTS = {
           onChange={e => x.patch(r.id, { team: e.target.value || null })}>
           <option value="">Aucune</option>
           {Object.entries(TEAMS).map(([k, v]) => {
-            const full = k !== r.team && inTeam(x.invites, k).length >= TEAM_GUESTS
-            return <option key={k} value={k} disabled={full}>{v}{full ? ' (complète)' : ` (${inTeam(x.invites, k).length}/${TEAM_GUESTS})`}</option>
+            const max = capacity(x.sponsors, k)
+            const full = k !== r.team && inTeam(x.invites, k).length >= max
+            return <option key={k} value={k} disabled={full}>{v}{full ? ' (complète)' : ` (${inTeam(x.invites, k).length}/${max})`}</option>
           })}
         </select>
       ), '', true],
@@ -318,6 +321,7 @@ export default function Admin() {
 
   const stats = useMemo(() => cfg.stats((items || []).filter(r => r.status !== 'annule'), {
     confirmedSponsors: Object.values(data?.sponsors || {}).filter(r => r.confirmed).length,
+    sponsors: data?.sponsors,
   }), [items, cfg, data])
 
   if (!data) return <Login onLogin={load} error={error} busy={busy} />
@@ -421,7 +425,7 @@ export default function Admin() {
                     </td>
                     {cfg.columns.map(([title, get, cls, interactive]) => (
                       <td key={title} className={cls || undefined} onClick={interactive ? e => e.stopPropagation() : undefined}>
-                        {get(r, { me, patch, editable: canEdit(me, tab, r), mine: Boolean(r.invited_by) && sameName(r.invited_by, me), invites: data.invites })}
+                        {get(r, { me, patch, editable: canEdit(me, tab, r), mine: Boolean(r.invited_by) && sameName(r.invited_by, me), invites: data.invites, sponsors: data.sponsors })}
                       </td>
                     ))}
                     <td onClick={e => e.stopPropagation()}>
@@ -534,13 +538,13 @@ function AddPlayer({ onClose, onSave }) {
   )
 }
 
-// Sponsors du site (src/content.js) : confirmé ou non, représentant et partie (représentant + 3 invités)
+// Sponsors du site (src/content.js) : confirmé ou non, représentant et partie (représentant + 3 invités, ou 4 invités sans représentant)
 function SponsorsPanel({ status, invites, onChange }) {
   const viaCard = slug => invites.filter(r => r.sponsor === slug && r.status !== 'annule').length
   return (
     <section className="adm-sponsors" aria-label="Sponsors du site">
       <h2 className="adm-h2">Sponsors et parties</h2>
-      <p className="adm-muted adm-sub">Chaque sponsor a une partie : son représentant + {TEAM_GUESTS} invités au maximum (golfeurs ou joueurs de rugby), placés depuis l’onglet Invités.</p>
+      <p className="adm-muted adm-sub">Chaque sponsor a une partie : son représentant + 3 invités, ou 4 invités si le sponsor n’a pas de représentant (golfeurs ou joueurs de rugby), placés depuis l’onglet Invités.</p>
       <div className="adm-table-wrap">
         <table className="adm-table">
           <thead><tr><th>Logo</th><th>Sponsor</th><th>Représentant</th><th>Partie</th><th>Statut</th><th>Modifié par</th></tr></thead>
@@ -549,6 +553,8 @@ function SponsorsPanel({ status, invites, onChange }) {
               const slug = sponsorSlug(sp)
               const s = status[slug]
               const members = inTeam(invites, slug)
+              const noRep = s?.has_representative === false
+              const max = capacity(status, slug)
               return (
                 <tr key={slug} className="is-static">
                   <td><span className={`adm-logo${sp.dark ? ' is-dark' : ''}`}><img src={sp.logo} alt="" /></span></td>
@@ -557,16 +563,23 @@ function SponsorsPanel({ status, invites, onChange }) {
                     <a href={`/invite/${slug}`} target="_blank" rel="noopener">/invite/{slug}</a>
                     <span className="adm-muted">{viaCard(slug)} inscrit(s) via sa carte</span>
                   </td>
-                  <td><RepresentativeField key={`${slug}-${s?.representative || ''}`} value={s?.representative || ''} onSave={v => onChange(slug, { representative: v })} /></td>
+                  <td>
+                    {!noRep && <RepresentativeField key={`${slug}-${s?.representative || ''}`} value={s?.representative || ''} onSave={v => onChange(slug, { representative: v })} />}
+                    <label className="adm-norep">
+                      <input type="checkbox" checked={noRep}
+                        onChange={e => (!e.target.checked || !members.length || window.confirm('Sans représentant, la partie passe à 4 invités. Continuer ?')) && onChange(slug, { hasRepresentative: !e.target.checked, ...(e.target.checked ? { representative: null } : {}) })} />
+                      Sans représentant (4 invités)
+                    </label>
+                  </td>
                   <td>
                     <ol className="adm-team-list">
-                      <li className="is-rep">{s?.representative || <em>Représentant à renseigner</em>}</li>
-                      {Array.from({ length: TEAM_GUESTS }, (_, i) => {
+                      {!noRep && <li className="is-rep">{s?.representative || <em>Représentant à renseigner</em>}</li>}
+                      {Array.from({ length: max }, (_, i) => {
                         const m = members[i]
                         return <li key={i} className={m ? '' : 'is-free'}>{m ? <>{m.first_name} {m.last_name}{m.profile && <small> · {PROFILE[m.profile]}</small>}{m.level && <small> · hcp {m.level}</small>}</> : 'Place libre'}</li>
                       })}
                     </ol>
-                    <span className={`adm-count${members.length >= TEAM_GUESTS ? ' is-full' : ''}`}>{members.length} / {TEAM_GUESTS} invités</span>
+                    <span className={`adm-count${members.length >= max ? ' is-full' : ''}`}>{members.length} / {max} invités</span>
                   </td>
                   <td>
                     <div className="adm-toggle" role="group" aria-label={`Statut de ${sp.name}`}>

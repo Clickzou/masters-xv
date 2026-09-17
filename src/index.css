@@ -706,3 +706,5 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
 .adm-team { padding: 6px 8px; font: 600 .78rem var(--sans); border: 1px solid #d8d1c1; background: #fff; cursor: pointer; max-width: 190px; }
 .adm-team.is-set { background: #efe7d4; border-color: var(--gold); color: var(--green); }
 .adm-team:disabled { cursor: not-allowed; opacity: .75; }
+
+.adm-norep { display: flex; gap: 6px; align-items: center; margin-top: 6px; font-size: .76rem; color: var(--muted); cursor: pointer; white-space: nowrap; }

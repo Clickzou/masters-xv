@@ -111,6 +111,8 @@ create table if not exists public.sponsors (
 
 -- Représentant du sponsor dans sa partie (nom seulement)
 alter table public.sponsors add column if not exists representative text check (char_length(representative) <= 120);
+-- Sans représentant (ex. Plyz) : la partie compte 4 invités au lieu de 3
+alter table public.sponsors add column if not exists has_representative boolean not null default true;
 
 alter table public.sponsors enable row level security;
 revoke all on public.sponsors from anon, authenticated;
