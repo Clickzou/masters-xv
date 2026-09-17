@@ -30,6 +30,10 @@ export default function App() {
     document.documentElement.lang = lang
     document.title = slug ? `${LEGAL[lang][slug].title} – Masters XV` : guest ? t.guest.meta.title : t.meta.title
     document.querySelector('meta[name="description"]')?.setAttribute('content', t.meta.description)
+    // Adresse canonique propre à chaque page (accueil, pages légales)
+    const canonical = `https://masters-xv.fr/${slug || ''}`
+    document.querySelector('link[rel="canonical"]')?.setAttribute('href', canonical)
+    document.querySelector('meta[property="og:url"]')?.setAttribute('content', canonical)
   }, [lang, slug, guest, t])
 
   // Page des invités : lien privé, non référencé
