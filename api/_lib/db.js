@@ -1,6 +1,6 @@
 // Accès aux tables Supabase via l'API REST, côté serveur uniquement.
 // « inscriptions » : partenaires payants (sponsors, équipes) · « invites » : invités gratuits
-// Variables : SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+// Variables : SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (clé secrète sb_secret_… ou ancienne clé service_role)
 
 const cfg = () => ({
   url: (process.env.SUPABASE_URL || '').replace(/\/$/, ''),
@@ -15,7 +15,8 @@ async function call(table, path, { method = 'GET', body, prefer } = {}) {
     method,
     headers: {
       apikey: key,
-      Authorization: `Bearer ${key}`,
+      // Ancienne clé service_role (JWT) : aussi en Bearer. Nouvelle clé sb_secret_… : l'en-tête apikey suffit.
+      ...(key.startsWith('sb_') ? {} : { Authorization: `Bearer ${key}` }),
       'Content-Type': 'application/json',
       ...(prefer ? { Prefer: prefer } : {}),
     },
