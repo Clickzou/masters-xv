@@ -55,7 +55,7 @@ export default function Home({ guest = false }) {
           <div className="hero-text">
             <p className="kicker">{guest ? t.guest.heroKicker : t.hero.kicker}</p>
             <h1>{t.hero.title1}<br /><em>{t.hero.title2}</em></h1>
-            <p className="hero-org">{t.hero.organisedBy} <strong>CTA Events</strong></p>
+            <p className="hero-org">{t.hero.organisedBy} <strong>CTA Events &amp; Midol Sports</strong></p>
             <div className="hero-meta">
               <span>{event.dateLabel}</span>
               <i aria-hidden="true">✦</i>
