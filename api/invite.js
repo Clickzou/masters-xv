@@ -1,7 +1,7 @@
 // Formulaire des invités (gratuit) : enregistrement Supabase « invites » + e-mails Resend
 import { dbConfigured, LISTS } from './_lib/db.js'
 import { sponsorBySlug, sponsorSlug } from '../src/content.js'
-import { mailConfigured, organisers, sendMail, guestOrganiserEmail, guestEmail } from './_lib/mail.js'
+import { mailConfigured, organisers, replyAddress, sendMail, guestOrganiserEmail, guestEmail } from './_lib/mail.js'
 
 const clip = (v, max) => {
   const s = String(v ?? '').trim()
@@ -58,7 +58,7 @@ export default async function handler(req, res) {
       jobs.push(sendMail({ to: organisers(), replyTo: row.email, ...m }).then(() => { alerted = true }))
     }
     const c = guestEmail(row)
-    jobs.push(sendMail({ to: [row.email], replyTo: organisers()[0], ...c }))
+    jobs.push(sendMail({ to: [row.email], replyTo: replyAddress(), ...c }))
     const results = await Promise.allSettled(jobs)
     results.filter(r => r.status === 'rejected').forEach(r => console.error('[invite] e-mail', r.reason?.message))
   }

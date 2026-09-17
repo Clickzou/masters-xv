@@ -9,6 +9,8 @@ const IVORY = '#F7F2E6'
 export const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c])
 
 export const mailConfigured = () => Boolean(process.env.RESEND_API_KEY && process.env.INSCRIPTION_FROM)
+// Adresse de réponse des e-mails envoyés aux participants
+export const replyAddress = () => process.env.INSCRIPTION_REPLY_TO || 'contact@masters-xv.fr'
 export const organisers = () => (process.env.INSCRIPTION_TO || '').split(',').map(s => s.trim()).filter(Boolean)
 
 export async function sendMail({ to, subject, html, text, replyTo }) {

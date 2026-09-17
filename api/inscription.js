@@ -1,6 +1,6 @@
 // Formulaire d'inscription : enregistrement Supabase + e-mails Resend (alerte organisateurs, confirmation participant)
 import { dbConfigured, LISTS } from './_lib/db.js'
-import { mailConfigured, organisers, sendMail, organiserEmail, participantEmail } from './_lib/mail.js'
+import { mailConfigured, organisers, replyAddress, sendMail, organiserEmail, participantEmail } from './_lib/mail.js'
 
 const clip = (v, max) => {
   const s = String(v ?? '').trim()
@@ -56,7 +56,7 @@ export default async function handler(req, res) {
       jobs.push(sendMail({ to: organisers(), replyTo: row.email, ...m }).then(() => { alerted = true }))
     }
     const c = participantEmail(row)
-    jobs.push(sendMail({ to: [row.email], replyTo: organisers()[0], ...c }))
+    jobs.push(sendMail({ to: [row.email], replyTo: replyAddress(), ...c }))
     const results = await Promise.allSettled(jobs)
     results.filter(r => r.status === 'rejected').forEach(r => console.error('[inscription] e-mail', r.reason?.message))
   }

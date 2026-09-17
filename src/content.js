@@ -9,7 +9,7 @@ export const SHARED = {
   mapsUrl: 'https://www.google.com/maps/search/?api=1&query=Golf+de+Palmola',
   mapsEmbed: 'https://maps.google.com/maps?q=Golf%20de%20Palmola&z=13&output=embed',
   // À compléter : contact affiché dans le pied de page et les pages légales, sinon null
-  contactEmail: null,
+  contactEmail: 'contact@masters-xv.fr',
   contactPhone: null,
 }
 
