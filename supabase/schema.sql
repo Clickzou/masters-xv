@@ -82,6 +82,11 @@ create table if not exists public.invites (
 
 alter table public.invites add column if not exists invited_by text check (char_length(invited_by) <= 120);
 alter table public.invites add column if not exists sponsor text check (char_length(sponsor) <= 80);
+-- Profil choisi au tableau de bord (golfeur ou joueur de rugby) et origine de la ligne
+alter table public.invites add column if not exists profile text check (profile in ('golfeur', 'rugbyman'));
+alter table public.invites add column if not exists source text not null default 'formulaire' check (source in ('formulaire', 'manuel'));
+-- Un rugbyman ajouté à la main peut ne pas avoir d'e-mail
+alter table public.invites alter column email drop not null;
 create index if not exists invites_created_at_idx on public.invites (created_at desc);
 
 drop trigger if exists invites_touch on public.invites;
@@ -90,3 +95,17 @@ for each row execute function public.inscriptions_touch();
 
 alter table public.invites enable row level security;
 revoke all on public.invites from anon, authenticated;
+
+
+-- ————————————————————————————————————————————————————————————————
+-- Sponsors du site (liste dans src/content.js) : confirmé ou non, depuis le tableau de bord.
+
+create table if not exists public.sponsors (
+  slug        text primary key check (char_length(slug) <= 80), -- nom du fichier logo, ex. clickzou
+  confirmed   boolean not null default false,
+  updated_by  text check (char_length(updated_by) <= 120),
+  updated_at  timestamptz not null default now()
+);
+
+alter table public.sponsors enable row level security;
+revoke all on public.sponsors from anon, authenticated;

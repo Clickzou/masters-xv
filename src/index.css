@@ -665,3 +665,30 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
 .adm-table tr.is-readonly td { background: #faf9f6; }
 .adm-status:disabled { cursor: not-allowed; opacity: .75; }
 .adm-readonly { margin: 0 0 14px; padding: 10px 12px; font-size: .85rem; background: #f6f1e4; border-left: 3px solid var(--gold); color: var(--ink); }
+
+.adm-h2 { margin: 26px 0 12px; font-family: var(--serif-caps); font-size: 1.15rem; letter-spacing: .04em; color: var(--green); }
+.adm-sponsors .adm-h2 { margin-top: 0; }
+.adm-sponsors { margin-bottom: 8px; }
+.adm-table tr.is-static { cursor: default; }
+.adm-table tr.is-static:hover { background: none; }
+.adm-logo { display: inline-flex; align-items: center; justify-content: center; width: 96px; height: 44px; padding: 5px 8px; background: #fff; border: 1px solid #e3ddd0; }
+.adm-logo.is-dark { background: var(--green-deep); border-color: var(--green-deep); }
+.adm-logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.adm-toggle { display: inline-flex; border: 1px solid #d8d1c1; }
+.adm-toggle button { padding: 7px 12px; font: 600 .76rem var(--sans); color: var(--muted); background: #fff; border: 0; cursor: pointer; white-space: nowrap; }
+.adm-toggle button + button { border-left: 1px solid #d8d1c1; }
+.adm-toggle button.is-on { background: var(--green); color: #fff; }
+.adm-toggle button.is-off { background: #f3e5e3; color: #8a1c10; }
+.adm-muted { font-size: .8rem; color: var(--muted); }
+
+.adm-hint-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.adm-hint-row p { margin: 0; flex: 1 1 420px; }
+.adm-hint-row .adm-btn-gold { color: var(--green-deep); }
+.adm-profile { padding: 6px 8px; font: 600 .78rem var(--sans); border: 1px solid #d8d1c1; background: #fff; cursor: pointer; }
+.adm-profile.is-none { background: #fff4d6; border-color: #e7c768; }
+.adm-profile.is-golfeur { background: #e5f4e8; border-color: #8fca9c; }
+.adm-profile.is-rugbyman { background: var(--green); color: #fff; border-color: var(--green); }
+.adm-profile:disabled { cursor: not-allowed; opacity: .75; }
+.adm-form { display: grid; gap: 2px; }
+.adm-form .adm-field input { padding: 10px 12px; font: .9rem var(--sans); border: 1px solid #d8d1c1; background: #fff; color: var(--ink); text-transform: none; letter-spacing: 0; font-weight: 400; }
+.adm-form .adm-btn-gold { justify-self: start; color: var(--green-deep); }

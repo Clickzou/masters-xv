@@ -41,4 +41,10 @@ export const LISTS = {
   invites: { ...repo('invites'), statuses: ['nouveau', 'confirme', 'annule'] },
 }
 
+// Statut des sponsors du site (table « sponsors », une ligne par slug de sponsors dans src/content.js)
+export const sponsorStatus = {
+  list: () => call('sponsors', '?select=*'),
+  save: row => call('sponsors', '?on_conflict=slug', { method: 'POST', body: row, prefer: 'resolution=merge-duplicates,return=representation' }).then(r => r[0]),
+}
+
 export const isUuid = v => /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(v || '')

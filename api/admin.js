@@ -5,7 +5,8 @@
 // Ensuite, seul lui peut modifier ou supprimer cet invité ; les autres le voient en lecture seule.
 // Variables : ADMIN_PASSWORD (+ variables Supabase)
 import { createHash, timingSafeEqual } from 'node:crypto'
-import { dbConfigured, LISTS, isUuid } from './_lib/db.js'
+import { dbConfigured, LISTS, isUuid, sponsorStatus } from './_lib/db.js'
+import { sponsorBySlug } from '../src/content.js'
 
 const digest = s => createHash('sha256').update(String(s)).digest()
 const sleep = ms => new Promise(r => setTimeout(r, ms))
@@ -24,6 +25,12 @@ function authorise(req) {
   return okPassword && name.length >= 2 ? name : null
 }
 
+const clip = (v, max) => {
+  const s = String(v ?? '').trim()
+  return s ? s.slice(0, max) : null
+}
+const PROFILES = ['golfeur', 'rugbyman']
+
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store')
   res.setHeader('X-Robots-Tag', 'noindex')
@@ -38,6 +45,23 @@ export default async function handler(req, res) {
 
   const params = new URL(req.url, 'http://x').searchParams
   const listKey = params.get('list') || 'partenaires'
+
+  // Sponsors du site : confirmé ou non (modifiable par tous les organisateurs)
+  if (listKey === 'sponsors') {
+    try {
+      if (req.method === 'GET') return res.status(200).json({ items: await sponsorStatus.list() })
+      if (req.method === 'PATCH') {
+        const { slug, confirmed } = req.body || {}
+        if (!sponsorBySlug(slug) || typeof confirmed !== 'boolean') return res.status(400).json({ error: 'invalid' })
+        const item = await sponsorStatus.save({ slug, confirmed, updated_by: me, updated_at: new Date().toISOString() })
+        return res.status(200).json({ item })
+      }
+      return res.status(405).json({ error: 'method' })
+    } catch (err) {
+      console.error('[admin sponsors]', err.message)
+      return res.status(502).json({ error: 'db' })
+    }
+  }
   const list = LISTS[listKey]
   if (!list) return res.status(400).json({ error: 'list' })
   const guests = listKey === 'invites'
@@ -56,8 +80,33 @@ export default async function handler(req, res) {
       return res.status(200).json({ items: await list.list() })
     }
 
+    // Ajout manuel d'un invité (joueur de rugby) : l'organisateur connecté en devient responsable
+    if (req.method === 'POST' && guests) {
+      const d = req.body || {}
+      const companions = Number.parseInt(d.companions, 10)
+      const row = {
+        first_name: clip(d.firstName, 120),
+        last_name: clip(d.lastName, 120),
+        company: clip(d.company, 200),
+        email: clip(d.email, 254),
+        phone: clip(d.phone, 40),
+        participation: ['golf', 'dejeuner'].includes(d.participation) ? d.participation : 'golf',
+        companions: companions >= 0 && companions <= 3 ? companions : 0,
+        level: clip(d.level, 200),
+        notes: clip(d.notes, 4000),
+        status: list.statuses.includes(d.status) ? d.status : 'confirme',
+        profile: PROFILES.includes(d.profile) ? d.profile : 'rugbyman',
+        source: 'manuel',
+        invited_by: me,
+        lang: 'fr',
+      }
+      if (!row.first_name || !row.last_name) return res.status(400).json({ error: 'invalid' })
+      if (row.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email)) return res.status(400).json({ error: 'email' })
+      return res.status(201).json({ item: await list.insert(row) })
+    }
+
     if (req.method === 'PATCH') {
-      const { id, status, notes, claim } = req.body || {}
+      const { id, status, notes, claim, profile } = req.body || {}
       if (!isUuid(id)) return res.status(400).json({ error: 'id' })
       const patch = {}
       if (status !== undefined) {
@@ -66,6 +115,10 @@ export default async function handler(req, res) {
       }
       if (notes !== undefined) patch.notes = String(notes).slice(0, 4000)
       if (guests && claim !== undefined) patch.invited_by = claim ? me : null
+      if (guests && profile !== undefined) {
+        if (profile !== null && !PROFILES.includes(profile)) return res.status(400).json({ error: 'profile' })
+        patch.profile = profile
+      }
       if (!Object.keys(patch).length) return res.status(400).json({ error: 'empty' })
 
       const c = await check(id)
