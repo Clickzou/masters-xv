@@ -737,8 +737,13 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
   .adm-top-actions { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 8px; padding: 12px 16px 16px; background: var(--green-deep); border-bottom: 2px solid var(--gold); box-shadow: 0 12px 24px rgba(0, 0, 0, .25); }
   .adm-top-actions.is-open { display: flex; }
   .adm-top-actions .adm-btn { width: 100%; padding: 12px; font-size: .85rem; }
-  .adm-tabs { padding: 0 8px; }
-  .adm-tabs button { flex: 1; justify-content: center; padding: 12px 8px; font-size: .74rem; }
+  /* Onglets bien visibles : deux gros boutons, collés sous l'en-tête au défilement */
+  .adm-top { top: 0; z-index: 20; }
+  .adm-tabs { position: sticky; top: 64px; z-index: 15; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 10px 12px; background: var(--green); box-shadow: 0 6px 14px rgba(0, 0, 0, .18); }
+  .adm-tabs button { justify-content: center; gap: 8px; padding: 14px 8px; font-size: .9rem; letter-spacing: .1em; color: var(--ivory); background: rgba(247, 242, 230, .08); border: 2px solid rgba(217, 168, 62, .55); border-bottom-width: 2px; border-radius: 6px; }
+  .adm-tabs button.is-active { color: var(--green-deep); background: var(--gold); border-color: var(--gold); box-shadow: 0 3px 10px rgba(0, 0, 0, .25); }
+  .adm-tabs button span { font-size: .78rem; padding: 2px 8px; }
+  .adm-tabs button.is-active span { background: var(--green-deep); color: var(--gold); }
   .adm-main { padding: 14px; }
   .adm-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
   .adm-stats div { padding: 12px; }
