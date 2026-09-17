@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { SPONSORS, sponsorBySlug, sponsorSlug } from '../content.js'
 
 // Tableau de bord des organisateurs — /admin
 // Deux listes séparées : partenaires payants (table « inscriptions ») et invités gratuits (table « invites »)
@@ -26,6 +27,8 @@ const tel = p => p.replace(/\s/g, '')
 const cleanName = s => String(s ?? '').replace(/\s+/g, ' ').replace(/:/g, '').trim().slice(0, 120)
 const sameName = (a, b) => cleanName(a).toLowerCase() === cleanName(b).toLowerCase()
 const hostName = n => n || 'Non attribué'
+const cardName = slug => sponsorBySlug(slug)?.name || 'Midi Olympique'
+const CARDS = Object.fromEntries(SPONSORS.filter(sp => sp.name !== 'Midi Olympique').map(sp => [sponsorSlug(sp), sp.name]))
 const userOf = token => { try { return cleanName(new TextDecoder().decode(Uint8Array.from(atob(token), c => c.charCodeAt(0))).split(':')[0]) } catch { return '' } }
 const canEdit = (me, tab, r) => tab !== 'invites' || !r.invited_by || sameName(r.invited_by, me)
 const local = {
@@ -82,6 +85,7 @@ const LISTS = {
     status: { nouveau: 'Nouveau', confirme: 'Confirmé', annule: 'Annulé' },
     filter: { key: 'participation', all: 'Toutes les participations', options: PARTICIPATION },
     byHost: true,
+    byCard: true,
     stats: list => {
       const golf = list.filter(r => r.participation === 'golf')
       return [
@@ -93,6 +97,7 @@ const LISTS = {
       ]
     },
     columns: [
+      ['Carte', r => cardName(r.sponsor)],
       ['Invité par', r => hostName(r.invited_by)],
       ['Société', r => r.company || '—'],
       ['Participation', r => <span className={`adm-offer is-${r.participation}`}>{PARTICIPATION[r.participation] || r.participation}</span>],
@@ -100,6 +105,7 @@ const LISTS = {
       ['Régime', r => (r.diet ? '✓' : '—'), 'center'],
     ],
     details: r => [
+      ['Carte', cardName(r.sponsor)],
       ['Invité par', hostName(r.invited_by)],
       ['Société', r.company],
       ['Participation', PARTICIPATION[r.participation]],
@@ -108,6 +114,7 @@ const LISTS = {
       ['Régime', r.diet],
     ],
     excel: [
+      ['Carte d’invitation', 24, r => cardName(r.sponsor)],
       ['Invité par', 22, r => hostName(r.invited_by)],
       ['Société', 24, r => r.company || ''],
       ['Participation', 18, r => PARTICIPATION[r.participation] || r.participation],
@@ -185,6 +192,7 @@ export default function Admin() {
   const [q, setQ] = useState('')
   const [choice, setChoice] = useState('')
   const [host, setHost] = useState('')
+  const [card, setCard] = useState('')
   const [status, setStatus] = useState('')
   const [open, setOpen] = useState(null)
   const [exporting, setExporting] = useState(false)
@@ -222,7 +230,7 @@ export default function Admin() {
 
   const switchTab = key => {
     setTab(key); session.set(TAB_KEY, key)
-    setQ(''); setChoice(''); setHost(''); setStatus(''); setOpen(null)
+    setQ(''); setChoice(''); setHost(''); setCard(''); setStatus(''); setOpen(null)
   }
 
   const setItems = (list, fn) => setData(d => ({ ...d, [list]: fn(d[list]) }))
@@ -255,10 +263,11 @@ export default function Admin() {
     const s = q.trim().toLowerCase()
     return items.filter(r =>
       (!choice || r[cfg.filter.key] === choice) &&
+      (!card || (card === 'none' ? !r.sponsor : r.sponsor === card)) &&
       (!host || (host === 'none' ? !r.invited_by : host === 'mine' ? sameName(r.invited_by, me) : r.invited_by === host)) &&
       (!status || r.status === status) &&
       (!s || [r.first_name, r.last_name, r.company, r.email, r.phone].some(v => (v || '').toLowerCase().includes(s))))
-  }, [items, q, choice, host, status, cfg, me])
+  }, [items, q, choice, host, card, status, cfg, me])
 
   const hosts = useMemo(() => [...new Set((data?.invites || []).map(r => r.invited_by).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr')), [data])
 
@@ -309,6 +318,13 @@ export default function Admin() {
             <option value="">{cfg.filter.all}</option>
             {Object.entries(cfg.filter.options).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
+          {cfg.byCard && (
+            <select value={card} onChange={e => setCard(e.target.value)}>
+              <option value="">Toutes les cartes</option>
+              <option value="none">Midi Olympique (sans sponsor)</option>
+              {Object.entries(CARDS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            </select>
+          )}
           {cfg.byHost && (
             <select value={host} onChange={e => setHost(e.target.value)}>
               <option value="">Tous les organisateurs</option>

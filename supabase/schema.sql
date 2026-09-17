@@ -72,6 +72,7 @@ create table if not exists public.invites (
   message       text check (char_length(message) <= 4000),
   lang          text not null default 'fr' check (lang in ('fr', 'en')),
   invited_by    text check (char_length(invited_by) <= 120), -- prénom et nom de l'organisateur, renseigné depuis le tableau de bord
+  sponsor       text check (char_length(sponsor) <= 80),      -- carte d'invitation du sponsor (lien /invite/<sponsor>)
 
   -- Suivi par les organisateurs
   status        text not null default 'nouveau'
@@ -80,6 +81,7 @@ create table if not exists public.invites (
 );
 
 alter table public.invites add column if not exists invited_by text check (char_length(invited_by) <= 120);
+alter table public.invites add column if not exists sponsor text check (char_length(sponsor) <= 80);
 create index if not exists invites_created_at_idx on public.invites (created_at desc);
 
 drop trigger if exists invites_touch on public.invites;

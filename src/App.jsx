@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { CONTENT } from './content.js'
+import { CONTENT, sponsorBySlug } from './content.js'
 import { LEGAL, LEGAL_SLUGS } from './legal.js'
 import { LangContext, detectLang, saveLang, store } from './i18n.jsx'
 import { MAP_KEY } from './components/MapConsent.jsx'
@@ -11,8 +11,9 @@ const legalSlug = () => {
   return LEGAL_SLUGS.includes(slug) ? slug : null
 }
 
-// Page des invités (lien de la carte d'invitation, non référencée)
-const isGuestPage = () => /^\/invite\/?$/.test(window.location.pathname)
+// Page des invités (lien de la carte d'invitation, non référencée) : /invite ou /invite/<sponsor>
+const guestMatch = window.location.pathname.match(/^\/invite(?:\/([a-z0-9-]+))?\/?$/)
+const GUEST = guestMatch ? { sponsor: sponsorBySlug(guestMatch[1]) } : null
 
 export default function App() {
   const [lang, setLang] = useState(detectLang)
@@ -21,7 +22,7 @@ export default function App() {
   const [notice, setNotice] = useState(false)
   const t = CONTENT[lang]
   const slug = legalSlug()
-  const guest = !slug && isGuestPage()
+  const guest = slug ? null : GUEST
   const base = slug ? '/' : '' // liens d'ancre vers l'accueil depuis une page légale
 
   // Langue, titre et description de la page

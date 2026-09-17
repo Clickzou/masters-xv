@@ -30,6 +30,11 @@ export const SPONSORS = [
   { name: 'Turkish Airlines', logo: '/sponsors/turkish-airlines.png', url: 'https://www.turkishairlines.com/fr-fr/' },
 ]
 
+// Lien et QR code personnels de la carte d'invitation de chaque sponsor : https://masters-xv.fr/invite/<slug>
+// (slug = nom du fichier logo, ex. /sponsors/clickzou.png → clickzou)
+export const sponsorSlug = sp => sp.logo.split('/').pop().replace(/\.\w+$/, '')
+export const sponsorBySlug = slug => SPONSORS.find(sp => sponsorSlug(sp) === slug) || null
+
 const GALLERY_SRC = [
   '/images/palmola/palmola-vue-aerienne.webp',
   '/images/palmola/palmola-lac.webp',
@@ -167,10 +172,12 @@ const fr = {
     meta: { title: 'Invitation – Masters XV, le tournoi des légendes Midi Olympique' },
     navCta: 'Répondre',
     heroKicker: 'Midi Olympique a le plaisir de vous inviter',
+    heroKickerFrom: name => `Midi Olympique et ${name} ont le plaisir de vous inviter`,
     ctaPrimary: 'Confirmer ma présence',
     kicker: 'Votre invitation',
     title: 'Confirmez votre présence',
     lead: 'Vous êtes l’invité de Midi Olympique et de CTA Events pour cette première édition. Merci de nous indiquer si vous serez des nôtres',
+    leadFrom: name => `Vous êtes l’invité de Midi Olympique et de ${name} pour cette première édition. Merci de nous indiquer si vous serez des nôtres`,
     form: {
       requiredNote: 'Les champs marqués d’un * sont obligatoires.',
       optional: 'facultatif',
@@ -319,10 +326,12 @@ const en = {
     meta: { title: 'Invitation – Masters XV, the Legends’ Tournament by Midi Olympique' },
     navCta: 'Reply',
     heroKicker: 'Midi Olympique is delighted to invite you',
+    heroKickerFrom: name => `Midi Olympique and ${name} are delighted to invite you`,
     ctaPrimary: 'Confirm my attendance',
     kicker: 'Your invitation',
     title: 'Confirm your attendance',
     lead: 'You are the guest of Midi Olympique and CTA Events for this very first edition. Please let us know whether you will be joining us',
+    leadFrom: name => `You are the guest of Midi Olympique and ${name} for this very first edition. Please let us know whether you will be joining us`,
     form: {
       requiredNote: 'Fields marked with * are required.',
       optional: 'optional',

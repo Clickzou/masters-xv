@@ -28,9 +28,10 @@ function SectionTitle({ kicker, title, light }) {
   )
 }
 
-// guest : page des invités (/invite), identique mais sans les formules payantes
-export default function Home({ guest = false }) {
+// guest : page des invités (/invite), identique mais sans les formules payantes · { sponsor } = carte du sponsor (/invite/<sponsor>)
+export default function Home({ guest = null }) {
   const t = useT()
+  const from = guest?.sponsor?.name
   const { event } = t
 
   // Apparition douce des blocs au défilement (relancée au changement de langue)
@@ -53,7 +54,7 @@ export default function Home({ guest = false }) {
         <div className="hero-inner">
           <img className="hero-logo" src="/logo/masters-xv-logo-couleur.svg" alt={t.hero.logoAlt} width="880" height="1190" />
           <div className="hero-text">
-            <p className="kicker">{guest ? t.guest.heroKicker : t.hero.kicker}</p>
+            <p className="kicker">{guest ? (from ? t.guest.heroKickerFrom(from) : t.guest.heroKicker) : t.hero.kicker}</p>
             <h1>{t.hero.title1}<br /><em>{t.hero.title2}</em></h1>
             <p className="hero-org">{t.hero.organisedBy} <strong>CTA Events &amp; Midol Sports</strong></p>
             <div className="hero-meta">
@@ -199,9 +200,9 @@ export default function Home({ guest = false }) {
         <div className="container narrow">
           <SectionTitle kicker={guest ? t.guest.kicker : t.inscription.kicker} title={guest ? t.guest.title : t.inscription.title} light />
           <p className="lead is-light reveal">
-            {guest ? t.guest.lead : t.inscription.lead}{event.registrationDeadline ? ` (${t.inscription.before} ${event.registrationDeadline})` : ''}.
+            {guest ? (from ? t.guest.leadFrom(from) : t.guest.lead) : t.inscription.lead}{event.registrationDeadline ? ` (${t.inscription.before} ${event.registrationDeadline})` : ''}.
           </p>
-          {guest ? <GuestForm /> : <RegistrationForm />}
+          {guest ? <GuestForm sponsor={guest.sponsor} /> : <RegistrationForm />}
         </div>
         <Fairways className="footer-fairways" base="var(--green-deep)" />
       </section>

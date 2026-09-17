@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useT } from '../i18n.jsx'
+import { sponsorSlug } from '../content.js'
 
 // Formulaire de réponse des invités (gratuit) — page /invite
 const INITIAL = {
@@ -7,7 +8,8 @@ const INITIAL = {
   participation: 'golf', companions: '0', level: '', diet: '', message: '', website: '',
 }
 
-export default function GuestForm() {
+// sponsor : carte d'invitation d'où vient l'invité (lien /invite/<sponsor>), sinon null
+export default function GuestForm({ sponsor = null }) {
   const t = useT()
   const f = { ...t.form, ...t.guest.form }
   const [data, setData] = useState(INITIAL)
@@ -39,7 +41,7 @@ export default function GuestForm() {
       const res = await fetch('/api/invite', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...data, lang: t.lang }),
+        body: JSON.stringify({ ...data, sponsor: sponsor ? sponsorSlug(sponsor) : null, lang: t.lang }),
       })
       if (!res.ok) throw new Error(String(res.status))
       setStatus('sent')

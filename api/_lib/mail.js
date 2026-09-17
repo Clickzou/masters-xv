@@ -1,5 +1,6 @@
 // Envoi des e-mails via Resend (https://resend.com)
 // Variables : RESEND_API_KEY, INSCRIPTION_FROM (expéditeur vérifié), INSCRIPTION_TO (organisateurs, séparés par des virgules)
+import { sponsorBySlug } from '../../src/content.js'
 
 const GREEN = '#0A3A20'
 const GOLD = '#D9A83E'
@@ -139,6 +140,7 @@ export function guestOrganiserEmail(d, { adminUrl } = {}) {
     ['Société', d.company],
     ['E-mail', d.email],
     ['Téléphone', d.phone],
+    ['Carte d’invitation', sponsorBySlug(d.sponsor)?.name || 'Midi Olympique (sans sponsor)'],
     ['Participation', participation],
     ['Accompagnants', String(d.companions ?? 0)],
     ['Index / niveau', d.level],

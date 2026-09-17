@@ -6,6 +6,7 @@ Site vitrine et d'inscription du tournoi **Masters XV – Le tournoi des légend
 - Deux parcours séparés :
   - **Partenaires payants** (sponsors, équipes) : page d'accueil `/`, table Supabase `inscriptions`
   - **Invités gratuits** : page miroir **`/invite`** sans les prix (non référencée), table Supabase `invites`
+    - Chaque sponsor a sa carte et son lien **`/invite/<sponsor>`** (ex. `/invite/clickzou`, slug = nom du fichier logo) : la page affiche « Midi Olympique et <Société>… » et l'invité est rattaché au sponsor (colonne « Carte » du tableau de bord)
 - Inscriptions enregistrées dans **Supabase** (région Francfort)
 - E-mails envoyés avec **Resend** : alerte aux organisateurs + confirmation au participant (FR/EN)
 - Tableau de bord sur **/admin** : onglets « Partenaires payants » et « Invités », export Excel
@@ -67,4 +68,4 @@ Les fonctions `/api` (formulaire, tableau de bord) tournent sur Vercel ou avec `
 ## Visuels
 
 - Logo vectoriel et variantes : `../logo-vectoriel/`
-- Cartes d'invitation et image de partage (`public/og-image.png`) : `../invitation/export.mjs` → `partenaires/` (QR code vers `/#inscription`) et `invites/` (QR code vers `/invite`)
+- Cartes d'invitation et image de partage (`public/og-image.png`) : `../invitation/export.mjs` → `partenaires/` (QR code vers `/#inscription`) et `invites/<sponsor>/` (une carte par sponsor, QR code vers `/invite/<sponsor>`)

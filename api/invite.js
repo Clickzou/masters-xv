@@ -1,5 +1,6 @@
 // Formulaire des invités (gratuit) : enregistrement Supabase « invites » + e-mails Resend
 import { dbConfigured, LISTS } from './_lib/db.js'
+import { sponsorBySlug, sponsorSlug } from '../src/content.js'
 import { mailConfigured, organisers, sendMail, guestOrganiserEmail, guestEmail } from './_lib/mail.js'
 
 const clip = (v, max) => {
@@ -26,6 +27,7 @@ export default async function handler(req, res) {
     diet: clip(d.diet, 300),
     message: clip(d.message, 4000),
     lang: d.lang === 'en' ? 'en' : 'fr',
+    sponsor: sponsorBySlug(d.sponsor) ? sponsorSlug(sponsorBySlug(d.sponsor)) : null, // carte /invite/<sponsor>
   }
   const required = ['first_name', 'last_name', 'phone', 'participation']
   if (required.some(k => !row[k]) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(row.email || '')) {
