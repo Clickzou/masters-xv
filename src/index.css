@@ -708,3 +708,6 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
 .adm-team:disabled { cursor: not-allowed; opacity: .75; }
 
 .adm-norep { display: flex; gap: 6px; align-items: center; margin-top: 6px; font-size: .76rem; color: var(--muted); cursor: pointer; white-space: nowrap; }
+
+.adm-count.is-over { background: #f3e5e3; color: #8a1c10; }
+.adm-team-list li.is-extra { color: #8a1c10; }

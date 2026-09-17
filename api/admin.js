@@ -30,8 +30,6 @@ const clip = (v, max) => {
   return s ? s.slice(0, max) : null
 }
 const PROFILES = ['golfeur', 'rugbyman']
-// Partie d'un sponsor : 4 joueurs = représentant + 3 invités, ou 4 invités s'il n'a pas de représentant
-export const teamCapacity = sponsorRow => (sponsorRow?.has_representative === false ? 4 : 3)
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store')
@@ -134,11 +132,7 @@ export default async function handler(req, res) {
       }
       if (guests && team !== undefined) {
         if (team !== null && !sponsorBySlug(team)) return res.status(400).json({ error: 'team' })
-        if (team) {
-          // Partie d'un sponsor : 3 invités (+ représentant) ou 4 invités s'il n'a pas de représentant
-          const taken = await list.query(`?select=id&team=eq.${encodeURIComponent(team)}&status=neq.annule&id=neq.${id}`)
-          if (taken.length >= teamCapacity(await sponsorStatus.get(team))) return res.status(409).json({ error: 'team-full' })
-        }
+        // Pas de limite de places : une partie peut dépasser sa capacité, le tri se fait ensuite au tableau de bord
         patch.team = team
       }
       if (!Object.keys(patch).length) return res.status(400).json({ error: 'empty' })

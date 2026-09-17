@@ -113,8 +113,8 @@ const LISTS = {
           <option value="">Aucune</option>
           {Object.entries(TEAMS).map(([k, v]) => {
             const max = capacity(x.sponsors, k)
-            const full = k !== r.team && inTeam(x.invites, k).length >= max
-            return <option key={k} value={k} disabled={full}>{v}{full ? ' (complète)' : ` (${inTeam(x.invites, k).length}/${max})`}</option>
+            const n = inTeam(x.invites, k).length
+            return <option key={k} value={k}>{v} ({n}/{max}{n > max ? ' · dépassée' : n === max ? ' · complète' : ''})</option>
           })}
         </select>
       ), '', true],
@@ -289,7 +289,6 @@ export default function Admin() {
     } catch (err) {
       setError(err.message === 'claim-first' ? 'Cliquez d’abord sur « C’est moi » : seul l’organisateur qui a invité la personne peut la placer dans une partie.'
         : err.status === 403 ? 'Cet invité a été ajouté par un autre organisateur : vous ne pouvez pas le modifier.'
-        : err.status === 409 && err.message === 'team-full' ? 'Cette partie est déjà complète (3 invités).'
         : err.status === 409 ? 'Un autre organisateur vient d’indiquer qu’il a invité cette personne.'
           : 'La modification n’a pas été enregistrée.')
       load(password)
@@ -544,7 +543,7 @@ function SponsorsPanel({ status, invites, onChange }) {
   return (
     <section className="adm-sponsors" aria-label="Sponsors du site">
       <h2 className="adm-h2">Sponsors et parties</h2>
-      <p className="adm-muted adm-sub">Chaque sponsor a une partie : son représentant + 3 invités, ou 4 invités si le sponsor n’a pas de représentant (golfeurs ou joueurs de rugby), placés depuis l’onglet Invités.</p>
+      <p className="adm-muted adm-sub">Chaque sponsor a une partie : son représentant + 3 invités, ou 4 invités si le sponsor n’a pas de représentant (golfeurs ou joueurs de rugby), placés depuis l’onglet Invités. Les places sont indicatives : une partie peut être dépassée, à arbitrer ensuite.</p>
       <div className="adm-table-wrap">
         <table className="adm-table">
           <thead><tr><th>Logo</th><th>Sponsor</th><th>Représentant</th><th>Partie</th><th>Statut</th><th>Modifié par</th></tr></thead>
@@ -574,12 +573,12 @@ function SponsorsPanel({ status, invites, onChange }) {
                   <td>
                     <ol className="adm-team-list">
                       {!noRep && <li className="is-rep">{s?.representative || <em>Représentant à renseigner</em>}</li>}
-                      {Array.from({ length: max }, (_, i) => {
+                      {Array.from({ length: Math.max(max, members.length) }, (_, i) => {
                         const m = members[i]
-                        return <li key={i} className={m ? '' : 'is-free'}>{m ? <>{m.first_name} {m.last_name}{m.profile && <small> · {PROFILE[m.profile]}</small>}{m.level && <small> · hcp {m.level}</small>}</> : 'Place libre'}</li>
+                        return <li key={i} className={m ? (i >= max ? 'is-extra' : '') : 'is-free'}>{m ? <>{m.first_name} {m.last_name}{m.profile && <small> · {PROFILE[m.profile]}</small>}{m.level && <small> · hcp {m.level}</small>}</> : 'Place libre'}</li>
                       })}
                     </ol>
-                    <span className={`adm-count${members.length >= max ? ' is-full' : ''}`}>{members.length} / {max} invités</span>
+                    <span className={`adm-count${members.length > max ? ' is-over' : members.length === max ? ' is-full' : ''}`}>{members.length} / {max} invités{members.length > max ? ` · ${members.length - max} en trop` : ''}</span>
                   </td>
                   <td>
                     <div className="adm-toggle" role="group" aria-label={`Statut de ${sp.name}`}>
