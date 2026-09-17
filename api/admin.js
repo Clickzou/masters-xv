@@ -30,6 +30,7 @@ const clip = (v, max) => {
   return s ? s.slice(0, max) : null
 }
 const PROFILES = ['golfeur', 'rugbyman']
+export const TEAM_GUESTS = 3 // invités par partie de sponsor, en plus du représentant
 
 export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store')
@@ -51,9 +52,15 @@ export default async function handler(req, res) {
     try {
       if (req.method === 'GET') return res.status(200).json({ items: await sponsorStatus.list() })
       if (req.method === 'PATCH') {
-        const { slug, confirmed } = req.body || {}
-        if (!sponsorBySlug(slug) || typeof confirmed !== 'boolean') return res.status(400).json({ error: 'invalid' })
-        const item = await sponsorStatus.save({ slug, confirmed, updated_by: me, updated_at: new Date().toISOString() })
+        const { slug, confirmed, representative } = req.body || {}
+        if (!sponsorBySlug(slug)) return res.status(400).json({ error: 'invalid' })
+        const row = { slug, updated_by: me, updated_at: new Date().toISOString() }
+        if (confirmed !== undefined) {
+          if (typeof confirmed !== 'boolean') return res.status(400).json({ error: 'invalid' })
+          row.confirmed = confirmed
+        }
+        if (representative !== undefined) row.representative = clip(representative, 120)
+        const item = await sponsorStatus.save(row)
         return res.status(200).json({ item })
       }
       return res.status(405).json({ error: 'method' })
@@ -106,7 +113,7 @@ export default async function handler(req, res) {
     }
 
     if (req.method === 'PATCH') {
-      const { id, status, notes, claim, profile } = req.body || {}
+      const { id, status, notes, claim, profile, team } = req.body || {}
       if (!isUuid(id)) return res.status(400).json({ error: 'id' })
       const patch = {}
       if (status !== undefined) {
@@ -119,10 +126,21 @@ export default async function handler(req, res) {
         if (profile !== null && !PROFILES.includes(profile)) return res.status(400).json({ error: 'profile' })
         patch.profile = profile
       }
+      if (guests && team !== undefined) {
+        if (team !== null && !sponsorBySlug(team)) return res.status(400).json({ error: 'team' })
+        if (team) {
+          // Partie d'un sponsor : 3 invités maximum en plus du représentant
+          const taken = await list.query(`?select=id&team=eq.${encodeURIComponent(team)}&status=neq.annule&id=neq.${id}`)
+          if (taken.length >= TEAM_GUESTS) return res.status(409).json({ error: 'team-full' })
+        }
+        patch.team = team
+      }
       if (!Object.keys(patch).length) return res.status(400).json({ error: 'empty' })
 
       const c = await check(id)
       if (!c.ok) return res.status(c.code).json({ error: c.error })
+      // Placement dans une partie : seulement par l'organisateur qui a revendiqué l'invité (« C'est moi »)
+      if (team !== undefined && !(c.row?.invited_by && sameName(c.row.invited_by, me))) return res.status(403).json({ error: 'claim-first' })
       // Invité encore libre : la mise à jour n'a lieu que si personne ne l'a revendiqué entre-temps
       const item = await list.update(id, patch, { onlyIf: guests && !c.row.invited_by ? '&invited_by=is.null' : '' })
       if (!item) return res.status(409).json({ error: 'already-claimed' })

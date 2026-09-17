@@ -87,6 +87,8 @@ alter table public.invites add column if not exists profile text check (profile 
 alter table public.invites add column if not exists source text not null default 'formulaire' check (source in ('formulaire', 'manuel'));
 -- Un rugbyman ajouté à la main peut ne pas avoir d'e-mail
 alter table public.invites alter column email drop not null;
+-- Partie (équipe de golf) du sponsor dans laquelle l'invité est placé : slug du sponsor, 3 invités maximum
+alter table public.invites add column if not exists team text check (char_length(team) <= 80);
 create index if not exists invites_created_at_idx on public.invites (created_at desc);
 
 drop trigger if exists invites_touch on public.invites;
@@ -106,6 +108,9 @@ create table if not exists public.sponsors (
   updated_by  text check (char_length(updated_by) <= 120),
   updated_at  timestamptz not null default now()
 );
+
+-- Représentant du sponsor dans sa partie (nom seulement)
+alter table public.sponsors add column if not exists representative text check (char_length(representative) <= 120);
 
 alter table public.sponsors enable row level security;
 revoke all on public.sponsors from anon, authenticated;

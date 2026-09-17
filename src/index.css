@@ -597,7 +597,7 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
 .adm-btn:disabled { opacity: .5; cursor: default; }
 .adm-btn-gold { background: var(--gold); color: var(--green-deep); border-color: var(--gold); }
 .adm-btn-ghost { border-color: transparent; color: rgba(247, 242, 230, .7); }
-.adm-main { padding: clamp(16px, 3vw, 32px); max-width: 1400px; margin: 0 auto; }
+.adm-main { padding: clamp(16px, 3vw, 32px); max-width: 1860px; margin: 0 auto; }
 .adm-banner { margin: 0 0 16px; padding: 10px 14px; background: #fdecea; color: #8a1c10; border-left: 3px solid #c0392b; }
 .adm-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px; margin-bottom: 20px; }
 .adm-stats div { padding: 16px 18px; background: #fff; border: 1px solid #e3ddd0; border-top: 3px solid var(--gold); }
@@ -692,3 +692,17 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
 .adm-form { display: grid; gap: 2px; }
 .adm-form .adm-field input { padding: 10px 12px; font: .9rem var(--sans); border: 1px solid #d8d1c1; background: #fff; color: var(--ink); text-transform: none; letter-spacing: 0; font-weight: 400; }
 .adm-form .adm-btn-gold { justify-self: start; color: var(--green-deep); }
+
+.adm-sub { margin: -6px 0 12px; }
+.adm-table td span.adm-muted { display: block; margin-top: 2px; }
+.adm-rep { width: 100%; min-width: 150px; padding: 8px 10px; font: .88rem var(--sans); border: 1px solid #d8d1c1; background: #fff; color: var(--ink); }
+.adm-rep:focus { outline: none; border-color: var(--gold); }
+.adm-team-list { margin: 0; padding-left: 18px; font-size: .84rem; line-height: 1.5; min-width: 210px; }
+.adm-team-list li.is-rep { font-weight: 600; color: var(--green); }
+.adm-team-list li.is-free { color: #b3aa98; font-style: italic; }
+.adm-team-list small { color: var(--muted); }
+.adm-count { display: inline-block; margin-top: 4px; padding: 2px 8px; font-size: .72rem; font-weight: 600; background: #efe7d4; color: var(--green); }
+.adm-count.is-full { background: var(--green); color: var(--gold); }
+.adm-team { padding: 6px 8px; font: 600 .78rem var(--sans); border: 1px solid #d8d1c1; background: #fff; cursor: pointer; max-width: 190px; }
+.adm-team.is-set { background: #efe7d4; border-color: var(--gold); color: var(--green); }
+.adm-team:disabled { cursor: not-allowed; opacity: .75; }

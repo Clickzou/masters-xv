@@ -27,6 +27,9 @@ const cleanName = s => String(s ?? '').replace(/\s+/g, ' ').replace(/:/g, '').tr
 const sameName = (a, b) => cleanName(a).toLowerCase() === cleanName(b).toLowerCase()
 const hostName = n => n || 'Non attribué'
 const cardName = slug => sponsorBySlug(slug)?.name || 'Midi Olympique'
+const TEAM_GUESTS = 3 // invités par partie, en plus du représentant du sponsor
+const TEAMS = Object.fromEntries(SPONSORS.map(sp => [sponsorSlug(sp), sp.name]))
+const inTeam = (invites, slug) => invites.filter(r => r.team === slug && r.status !== 'annule')
 const CARDS = Object.fromEntries(SPONSORS.filter(sp => sp.name !== 'Midi Olympique').map(sp => [sponsorSlug(sp), sp.name]))
 const userOf = token => { try { return cleanName(new TextDecoder().decode(Uint8Array.from(atob(token), c => c.charCodeAt(0))).split(':')[0]) } catch { return '' } }
 const canEdit = (me, tab, r) => tab !== 'invites' || !r.invited_by || sameName(r.invited_by, me)
@@ -82,7 +85,9 @@ const LISTS = {
     byHost: true,
     byCard: true,
     stats: list => {
+      const placed = list.filter(r => r.team).length
       return [
+        ['Parties', `${placed} / ${SPONSORS.length * TEAM_GUESTS}`, `places d’invités occupées · ${SPONSORS.length} parties`],
         ['Réponses', list.length, `${list.filter(r => r.status === 'nouveau').length} à traiter`],
         ['Personnes', list.reduce((n, r) => n + people(r), 0), 'invités + accompagnants'],
         ['Golfeurs', list.filter(r => r.profile === 'golfeur').length, `${list.filter(r => !r.profile).length} profil(s) à définir`],
@@ -99,6 +104,17 @@ const LISTS = {
           {Object.entries(PROFILE).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
         </select>
       ), '', true],
+      ['Partie', (r, x) => (
+        <select className={`adm-team${r.team ? ' is-set' : ''}`} value={r.team || ''} disabled={!x.mine}
+          title={x.mine ? undefined : 'Cliquez d’abord sur « C’est moi » pour placer cet invité'}
+          onChange={e => x.patch(r.id, { team: e.target.value || null })}>
+          <option value="">Aucune</option>
+          {Object.entries(TEAMS).map(([k, v]) => {
+            const full = k !== r.team && inTeam(x.invites, k).length >= TEAM_GUESTS
+            return <option key={k} value={k} disabled={full}>{v}{full ? ' (complète)' : ` (${inTeam(x.invites, k).length}/${TEAM_GUESTS})`}</option>
+          })}
+        </select>
+      ), '', true],
       ['Handicap', r => r.level || '—', 'center'],
       ['Carte', r => (r.source === 'manuel' ? 'Ajout manuel' : cardName(r.sponsor))],
       ['Invité par', (r, x) => <HostCell r={r} me={x.me} onClaim={claim => x.patch(r.id, { claim })} />, '', true],
@@ -109,6 +125,7 @@ const LISTS = {
     ],
     details: r => [
       ['Profil', PROFILE[r.profile] || 'À définir'],
+      ['Partie', TEAMS[r.team] || 'Aucune'],
       ['Carte', r.source === 'manuel' ? 'Ajout manuel' : cardName(r.sponsor)],
       ['Invité par', hostName(r.invited_by)],
       ['Société', r.company],
@@ -119,6 +136,7 @@ const LISTS = {
     ],
     excel: [
       ['Profil', 16, r => PROFILE[r.profile] || 'À définir'],
+      ['Partie', 22, r => TEAMS[r.team] || ''],
       ['Carte d’invitation', 24, r => (r.source === 'manuel' ? 'Ajout manuel' : cardName(r.sponsor))],
       ['Invité par', 22, r => hostName(r.invited_by)],
       ['Société', 24, r => r.company || ''],
@@ -198,6 +216,7 @@ export default function Admin() {
   const [choice, setChoice] = useState('')
   const [host, setHost] = useState('')
   const [card, setCard] = useState('')
+  const [team, setTeam] = useState('')
   const [status, setStatus] = useState('')
   const [open, setOpen] = useState(null)
   const [exporting, setExporting] = useState(false)
@@ -241,20 +260,20 @@ export default function Admin() {
 
   const switchTab = key => {
     setTab(key); session.set(TAB_KEY, key)
-    setQ(''); setChoice(''); setHost(''); setCard(''); setStatus(''); setOpen(null)
+    setQ(''); setChoice(''); setHost(''); setCard(''); setTeam(''); setStatus(''); setOpen(null)
   }
 
   const setItems = (list, fn) => setData(d => ({ ...d, [list]: fn(d[list]) }))
 
-  const setSponsor = async (slug, confirmed) => {
+  const setSponsor = async (slug, changes) => {
     const before = data.sponsors[slug]
-    setData(d => ({ ...d, sponsors: { ...d.sponsors, [slug]: { ...before, slug, confirmed, updated_by: me } } }))
+    setData(d => ({ ...d, sponsors: { ...d.sponsors, [slug]: { ...before, slug, ...changes, updated_by: me } } }))
     try {
-      const { item } = await api(password, 'sponsors', 'PATCH', { slug, confirmed })
+      const { item } = await api(password, 'sponsors', 'PATCH', { slug, ...changes })
       setData(d => ({ ...d, sponsors: { ...d.sponsors, [slug]: item } }))
     } catch {
       setData(d => ({ ...d, sponsors: { ...d.sponsors, [slug]: before } }))
-      setError('Le statut du sponsor n’a pas été enregistré.')
+      setError('La modification du sponsor n’a pas été enregistrée.')
     }
   }
 
@@ -265,7 +284,9 @@ export default function Admin() {
       const { item } = await api(password, list, 'PATCH', { id, ...changes })
       setItems(list, rows => rows.map(r => (r.id === id ? item : r)))
     } catch (err) {
-      setError(err.status === 403 ? 'Cet invité a été ajouté par un autre organisateur : vous ne pouvez pas le modifier.'
+      setError(err.message === 'claim-first' ? 'Cliquez d’abord sur « C’est moi » : seul l’organisateur qui a invité la personne peut la placer dans une partie.'
+        : err.status === 403 ? 'Cet invité a été ajouté par un autre organisateur : vous ne pouvez pas le modifier.'
+        : err.status === 409 && err.message === 'team-full' ? 'Cette partie est déjà complète (3 invités).'
         : err.status === 409 ? 'Un autre organisateur vient d’indiquer qu’il a invité cette personne.'
           : 'La modification n’a pas été enregistrée.')
       load(password)
@@ -287,10 +308,11 @@ export default function Admin() {
     return items.filter(r =>
       (!choice || r[cfg.filter.key] === choice) &&
       (!card || (card === 'none' ? !r.sponsor : r.sponsor === card)) &&
+      (!team || (team === 'none' ? !r.team : r.team === team)) &&
       (!host || (host === 'none' ? !r.invited_by : host === 'mine' ? sameName(r.invited_by, me) : r.invited_by === host)) &&
       (!status || r.status === status) &&
       (!s || [r.first_name, r.last_name, r.company, r.email, r.phone].some(v => (v || '').toLowerCase().includes(s))))
-  }, [items, q, choice, host, card, status, cfg, me])
+  }, [items, q, choice, host, card, team, status, cfg, me])
 
   const hosts = useMemo(() => [...new Set((data?.invites || []).map(r => r.invited_by).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'fr')), [data])
 
@@ -353,6 +375,13 @@ export default function Admin() {
             {Object.entries(cfg.filter.options).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
           </select>
           {cfg.byCard && (
+            <select value={team} onChange={e => setTeam(e.target.value)}>
+              <option value="">Toutes les parties</option>
+              <option value="none">Sans partie</option>
+              {Object.entries(TEAMS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+            </select>
+          )}
+          {cfg.byCard && (
             <select value={card} onChange={e => setCard(e.target.value)}>
               <option value="">Toutes les cartes</option>
               <option value="none">Midi Olympique (sans sponsor)</option>
@@ -392,7 +421,7 @@ export default function Admin() {
                     </td>
                     {cfg.columns.map(([title, get, cls, interactive]) => (
                       <td key={title} className={cls || undefined} onClick={interactive ? e => e.stopPropagation() : undefined}>
-                        {get(r, { me, patch, editable: canEdit(me, tab, r) })}
+                        {get(r, { me, patch, editable: canEdit(me, tab, r), mine: Boolean(r.invited_by) && sameName(r.invited_by, me), invites: data.invites })}
                       </td>
                     ))}
                     <td onClick={e => e.stopPropagation()}>
@@ -505,28 +534,44 @@ function AddPlayer({ onClose, onSave }) {
   )
 }
 
-// Sponsors du site (src/content.js) : confirmé ou non, et nombre d'invités venus par leur carte
+// Sponsors du site (src/content.js) : confirmé ou non, représentant et partie (représentant + 3 invités)
 function SponsorsPanel({ status, invites, onChange }) {
-  const guests = slug => invites.filter(r => r.sponsor === slug && r.status !== 'annule').reduce((n, r) => n + people(r), 0)
+  const viaCard = slug => invites.filter(r => r.sponsor === slug && r.status !== 'annule').length
   return (
     <section className="adm-sponsors" aria-label="Sponsors du site">
-      <h2 className="adm-h2">Sponsors du site</h2>
+      <h2 className="adm-h2">Sponsors et parties</h2>
+      <p className="adm-muted adm-sub">Chaque sponsor a une partie : son représentant + {TEAM_GUESTS} invités au maximum (golfeurs ou joueurs de rugby), placés depuis l’onglet Invités.</p>
       <div className="adm-table-wrap">
         <table className="adm-table">
-          <thead><tr><th>Logo</th><th>Sponsor</th><th className="center">Invités</th><th>Statut</th><th>Modifié par</th></tr></thead>
+          <thead><tr><th>Logo</th><th>Sponsor</th><th>Représentant</th><th>Partie</th><th>Statut</th><th>Modifié par</th></tr></thead>
           <tbody>
             {SPONSORS.map(sp => {
               const slug = sponsorSlug(sp)
               const s = status[slug]
+              const members = inTeam(invites, slug)
               return (
                 <tr key={slug} className="is-static">
                   <td><span className={`adm-logo${sp.dark ? ' is-dark' : ''}`}><img src={sp.logo} alt="" /></span></td>
-                  <td><strong>{sp.name}</strong><a href={`/invite/${slug}`} target="_blank" rel="noopener">/invite/{slug}</a></td>
-                  <td className="center">{guests(slug)}</td>
+                  <td>
+                    <strong>{sp.name}</strong>
+                    <a href={`/invite/${slug}`} target="_blank" rel="noopener">/invite/{slug}</a>
+                    <span className="adm-muted">{viaCard(slug)} inscrit(s) via sa carte</span>
+                  </td>
+                  <td><RepresentativeField key={`${slug}-${s?.representative || ''}`} value={s?.representative || ''} onSave={v => onChange(slug, { representative: v })} /></td>
+                  <td>
+                    <ol className="adm-team-list">
+                      <li className="is-rep">{s?.representative || <em>Représentant à renseigner</em>}</li>
+                      {Array.from({ length: TEAM_GUESTS }, (_, i) => {
+                        const m = members[i]
+                        return <li key={i} className={m ? '' : 'is-free'}>{m ? <>{m.first_name} {m.last_name}{m.profile && <small> · {PROFILE[m.profile]}</small>}{m.level && <small> · hcp {m.level}</small>}</> : 'Place libre'}</li>
+                      })}
+                    </ol>
+                    <span className={`adm-count${members.length >= TEAM_GUESTS ? ' is-full' : ''}`}>{members.length} / {TEAM_GUESTS} invités</span>
+                  </td>
                   <td>
                     <div className="adm-toggle" role="group" aria-label={`Statut de ${sp.name}`}>
-                      <button type="button" className={s?.confirmed ? 'is-on' : ''} aria-pressed={Boolean(s?.confirmed)} onClick={() => !s?.confirmed && onChange(slug, true)}>Confirmé</button>
-                      <button type="button" className={!s?.confirmed ? 'is-off' : ''} aria-pressed={!s?.confirmed} onClick={() => s?.confirmed && onChange(slug, false)}>Non confirmé</button>
+                      <button type="button" className={s?.confirmed ? 'is-on' : ''} aria-pressed={Boolean(s?.confirmed)} onClick={() => !s?.confirmed && onChange(slug, { confirmed: true })}>Confirmé</button>
+                      <button type="button" className={!s?.confirmed ? 'is-off' : ''} aria-pressed={!s?.confirmed} onClick={() => s?.confirmed && onChange(slug, { confirmed: false })}>Non confirmé</button>
                     </div>
                   </td>
                   <td className="adm-muted">{s?.updated_by ? `${s.updated_by} · ${fmtDate(s.updated_at)}` : '—'}</td>
@@ -537,6 +582,16 @@ function SponsorsPanel({ status, invites, onChange }) {
         </table>
       </div>
     </section>
+  )
+}
+
+// Nom du représentant : enregistré à la sortie du champ ou avec Entrée
+function RepresentativeField({ value, onSave }) {
+  const [v, setV] = useState(value)
+  const save = () => { if (v.trim() !== value) onSave(v.trim()) }
+  return (
+    <input className="adm-rep" value={v} placeholder="Prénom Nom" maxLength="120"
+      onChange={e => setV(e.target.value)} onBlur={save} onKeyDown={e => e.key === 'Enter' && e.currentTarget.blur()} />
   )
 }
 

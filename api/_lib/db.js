@@ -29,6 +29,7 @@ async function call(table, path, { method = 'GET', body, prefer } = {}) {
 const repo = table => ({
   insert: row => call(table, '', { method: 'POST', body: row, prefer: 'return=representation' }).then(r => r[0]),
   list: () => call(table, '?select=*&order=created_at.desc'),
+  query: path => call(table, path),
   get: id => call(table, `?id=eq.${id}&select=*`).then(r => r[0] || null),
   // onlyIf : filtre PostgREST supplémentaire ; renvoie undefined si aucune ligne ne correspond
   update: (id, patch, { onlyIf = '' } = {}) => call(table, `?id=eq.${id}${onlyIf}`, { method: 'PATCH', body: patch, prefer: 'return=representation' }).then(r => r[0]),
