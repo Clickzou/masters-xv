@@ -44,7 +44,8 @@ const local = {
 // ——— Configuration de chaque liste
 const LISTS = {
   partenaires: {
-    tab: 'Partenaires payants',
+    tab: 'Sponsors',
+    hideCount: true,
     subtitle: 'Sponsors et équipes partenaires',
     file: 'partenaires',
     status: { nouveau: 'Nouveau', contacte: 'Contacté', confirme: 'Confirmé', paye: 'Payé', annule: 'Annulé' },
@@ -356,7 +357,7 @@ export default function Admin() {
       <nav className="adm-tabs" aria-label="Listes">
         {Object.entries(LISTS).map(([key, l]) => (
           <button key={key} className={key === tab ? 'is-active' : ''} aria-current={key === tab} onClick={() => switchTab(key)}>
-            {l.tab}<span>{data[key].length}</span>
+            {l.tab}{!l.hideCount && <span>{data[key].length}</span>}
           </button>
         ))}
       </nav>
