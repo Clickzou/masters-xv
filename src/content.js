@@ -23,11 +23,11 @@ export const SPONSORS = [
   { name: 'Intermarché Garidech', logo: '/sponsors/intermarche-garidech.png', url: 'https://www.intermarche.com/magasins/11126/garidech-31380/infos-pratiques' },
   { name: 'Subloisirs', logo: '/sponsors/subloisirs.png', url: 'https://subloisirs.com/', dark: true },
   { name: 'Debard Automobiles', logo: '/sponsors/debard-automobiles.png', url: 'https://www.debardautomobiles.com/' },
-  { name: 'Securinfor', logo: '/sponsors/securinfor.png', url: 'https://www.securinfor.fr/' },
+  { name: 'Turkish Airlines', logo: '/sponsors/turkish-airlines.png', url: 'https://www.turkishairlines.com/fr-fr/' },
   { name: 'Le Bistro de Palmo', logo: '/sponsors/bistro-de-palmo.png', url: 'https://www.bistrodepalmo.com/' },
   { name: 'McDonald’s', logo: '/sponsors/mcdonalds.png', url: 'https://www.mcdonalds.fr/' },
   { name: 'Plyz', logo: '/sponsors/plyz.png', url: 'https://plyz.io/', dark: true },
-  { name: 'Turkish Airlines', logo: '/sponsors/turkish-airlines.png', url: 'https://www.turkishairlines.com/fr-fr/' },
+  { name: 'Securinfor', logo: '/sponsors/securinfor.png', url: 'https://www.securinfor.fr/' },
   { name: 'Golf de Palmola', logo: '/sponsors/golf-de-palmola.png', url: 'https://www.golfdepalmola.com/' },
   { name: 'NOpTRACK', logo: '/sponsors/noptrack.png' },
 ]
