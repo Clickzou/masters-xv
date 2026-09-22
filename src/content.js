@@ -49,11 +49,11 @@ const GALLERY_SRC = [
 // ——— Français
 const fr = {
   meta: {
-    title: 'Masters XV – Le tournoi des légendes Midi Olympique',
+    title: 'Masters XV – Legends Golf Trophy · Midi Olympique',
     description: 'Masters XV, le tournoi de golf des légendes du rugby par Midi Olympique. Mercredi 14 octobre 2026 au golf de Palmola : shamble à 4, concours de drive et de précision, déjeuner et remise des prix.',
   },
   event: {
-    baseline: 'Le tournoi des légendes Midi Olympique',
+    baseline: 'Legends Golf Trophy · Midi Olympique',
     dateLabel: 'Mercredi 14 octobre 2026',
     venueCity: 'Buzet-sur-Tarn, à 20 minutes de Toulouse',
     format: 'Shamble à 4',
@@ -68,7 +68,7 @@ const fr = {
   },
   hero: {
     kicker: 'Midi Olympique présente',
-    title1: 'Le tournoi', title2: 'des légendes',
+    title1: 'Legends', title2: 'Golf Trophy',
     organisedBy: '— organisé par',
     logoAlt: 'Masters XV – Midi Olympique Golf Tournament',
     ctaPrimary: 'Inscrire une équipe',
@@ -171,7 +171,7 @@ const fr = {
   },
   // ——— Page des invités (/invite) : même site, sans les formules payantes
   guest: {
-    meta: { title: 'Invitation – Masters XV, le tournoi des légendes Midi Olympique' },
+    meta: { title: 'Invitation – Masters XV, Legends Golf Trophy · Midi Olympique' },
     navCta: 'Répondre',
     heroKicker: 'Midi Olympique a le plaisir de vous inviter',
     heroKickerFrom: name => `Midi Olympique et ${name} ont le plaisir de vous inviter`,
@@ -205,11 +205,11 @@ const fr = {
 // ——— English
 const en = {
   meta: {
-    title: 'Masters XV – The Legends’ Tournament by Midi Olympique',
+    title: 'Masters XV – Legends Golf Trophy by Midi Olympique',
     description: 'Masters XV, the golf tournament of rugby legends by Midi Olympique. Wednesday 14 October 2026 at Golf de Palmola: 4-player shamble, longest drive and nearest-the-pin contests, lunch and prize-giving.',
   },
   event: {
-    baseline: 'The Legends’ Tournament by Midi Olympique',
+    baseline: 'Legends Golf Trophy by Midi Olympique',
     dateLabel: 'Wednesday 14 October 2026',
     venueCity: 'Buzet-sur-Tarn, 20 minutes from Toulouse',
     format: '4-player shamble',
@@ -223,7 +223,7 @@ const en = {
   },
   hero: {
     kicker: 'Midi Olympique presents',
-    title1: 'The legends’', title2: 'tournament',
+    title1: 'Legends', title2: 'Golf Trophy',
     organisedBy: '— organised by',
     logoAlt: 'Masters XV – Midi Olympique Golf Tournament',
     ctaPrimary: 'Register a team',
@@ -325,7 +325,7 @@ const en = {
     mailSubject: 'Masters XV registration',
   },
   guest: {
-    meta: { title: 'Invitation – Masters XV, the Legends’ Tournament by Midi Olympique' },
+    meta: { title: 'Invitation – Masters XV, Legends Golf Trophy by Midi Olympique' },
     navCta: 'Reply',
     heroKicker: 'Midi Olympique is delighted to invite you',
     heroKickerFrom: name => `Midi Olympique and ${name} are delighted to invite you`,

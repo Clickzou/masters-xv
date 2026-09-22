@@ -47,7 +47,7 @@ export const LEGAL = {
           `Contact : ${contactFr()}.`,
         ] },
         { h: 'L’événement', p: [
-          'Masters XV – Le tournoi des légendes est organisé par CTA Events, en partenariat avec Midi Olympique et le Golf de Palmola (Route d’Albi, 31660 Buzet-sur-Tarn).',
+          'Masters XV – Legends Golf Trophy est organisé par CTA Events, en partenariat avec Midi Olympique et le Golf de Palmola (Route d’Albi, 31660 Buzet-sur-Tarn).',
         ] },
         { h: 'Hébergement', p: [`Le site est hébergé par ${HOST}.`] },
         { h: 'Conception et réalisation', p: ['Clickzou, agence digitale et IA à Toulouse — https://www.clickzou.fr'] },
@@ -144,7 +144,7 @@ export const LEGAL = {
           `Contact: ${contactEn()}.`,
         ] },
         { h: 'The event', p: [
-          'Masters XV – The Legends’ Tournament is organised by CTA Events, in partnership with Midi Olympique and Golf de Palmola (Route d’Albi, 31660 Buzet-sur-Tarn, France).',
+          'Masters XV – Legends Golf Trophy is organised by CTA Events, in partnership with Midi Olympique and Golf de Palmola (Route d’Albi, 31660 Buzet-sur-Tarn, France).',
         ] },
         { h: 'Hosting', p: [`The website is hosted by ${HOST_EN}.`] },
         { h: 'Design and development', p: ['Clickzou, digital & AI agency in Toulouse — https://www.clickzou.fr'] },

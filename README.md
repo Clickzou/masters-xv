@@ -1,6 +1,6 @@
 # Site Masters XV — masters-xv.fr
 
-Site vitrine et d'inscription du tournoi **Masters XV – Le tournoi des légendes Midi Olympique** (mercredi 14 octobre 2026, golf de Palmola), en français et en anglais.
+Site vitrine et d'inscription du tournoi **Masters XV – Legends Golf Trophy · Midi Olympique** (mercredi 14 octobre 2026, golf de Palmola), en français et en anglais.
 
 - React + Vite, hébergé sur Vercel
 - Deux parcours séparés :

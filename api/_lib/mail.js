@@ -78,7 +78,7 @@ ${adminUrl ? `<p style="text-align:center;margin:24px 0 4px;"><a href="${adminUr
 const CONFIRM = {
   fr: {
     subject: 'Masters XV – Nous avons bien reçu votre demande',
-    title: 'Le tournoi des légendes',
+    title: 'Legends Golf Trophy',
     hello: n => `Bonjour ${n},`,
     intro: 'Merci pour votre intérêt pour le <strong>Masters XV</strong>. Nous avons bien reçu votre demande et l’équipe organisatrice revient vers vous très rapidement pour finaliser votre inscription.',
     recap: 'Récapitulatif de votre demande',
@@ -92,7 +92,7 @@ const CONFIRM = {
   },
   en: {
     subject: 'Masters XV – We have received your request',
-    title: 'The Legends’ Tournament',
+    title: 'Legends Golf Trophy',
     hello: n => `Hello ${n},`,
     intro: 'Thank you for your interest in <strong>Masters XV</strong>. We have received your request and the organising team will get back to you shortly to finalise your registration.',
     recap: 'Summary of your request',
