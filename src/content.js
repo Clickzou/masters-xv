@@ -14,7 +14,7 @@ export const SHARED = {
 }
 
 // Carrousel des sponsors, dans l'ordre d'affichage.
-// logo : fichier dans public/sponsors/ · dark: true → logo blanc affiché sur une carte verte
+// logo : fichier dans public/sponsors/ (sans logo : nom écrit, avec un slug) · dark: true → logo blanc affiché sur une carte verte
 export const SPONSORS = [
   { name: 'Midi Olympique', logo: '/sponsors/midi-olympique.png', url: 'https://www.midi-olympique.fr/' },
   { name: 'CTA Events', logo: '/sponsors/cta-events.png', url: 'https://ctameetingevents.fr/' },
@@ -30,11 +30,12 @@ export const SPONSORS = [
   { name: 'Securinfor', logo: '/sponsors/securinfor.png', url: 'https://www.securinfor.fr/' },
   { name: 'Golf de Palmola', logo: '/sponsors/golf-de-palmola.png', url: 'https://www.golfdepalmola.com/' },
   { name: 'NOpTRACK', logo: '/sponsors/noptrack.png' },
+  { name: 'Financière Bonicel', slug: 'financiere-bonicel' }, // pas de logo : nom écrit
 ]
 
 // Lien et QR code personnels de la carte d'invitation de chaque sponsor : https://masters-xv.fr/invite/<slug>
-// (slug = nom du fichier logo, ex. /sponsors/clickzou.png → clickzou)
-export const sponsorSlug = sp => sp.logo.split('/').pop().replace(/\.\w+$/, '')
+// (slug = nom du fichier logo, ex. /sponsors/clickzou.png → clickzou, ou slug explicite si pas de logo)
+export const sponsorSlug = sp => sp.slug || sp.logo.split('/').pop().replace(/\.\w+$/, '')
 export const sponsorBySlug = slug => SPONSORS.find(sp => sponsorSlug(sp) === slug) || null
 
 const GALLERY_SRC = [

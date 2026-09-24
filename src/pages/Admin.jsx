@@ -544,7 +544,7 @@ function SponsorsPanel({ status, invites, onChange, onPlace }) {
               const teams = teamsOf(status, slug)
               return (
                 <tr key={slug} className="is-static">
-                  <td className="adm-cell-logo"><span className={`adm-logo${sp.dark ? ' is-dark' : ''}`}><img src={sp.logo} alt="" /></span></td>
+                  <td className="adm-cell-logo"><span className={`adm-logo${sp.dark ? ' is-dark' : ''}`}>{sp.logo ? <img src={sp.logo} alt="" /> : <span className="adm-logo-text">{sp.name}</span>}</span></td>
                   <td data-label="Sponsor">
                     <strong className={`adm-sp-name${s?.confirmed ? ' is-confirmed' : ''}`}>{s?.confirmed && <span className="adm-check" aria-label="Confirmé" title="Sponsor confirmé">✓</span>}{sp.name}</strong>
                     <a href={`/invite/${slug}`} target="_blank" rel="noopener">/invite/{slug}</a>
