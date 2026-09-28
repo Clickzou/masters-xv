@@ -21,17 +21,16 @@ export const SPONSORS = [
   { name: 'Clickzou', logo: '/sponsors/clickzou.png', url: 'https://www.clickzou.fr/' },
   { name: 'Joaillerie Piquemal Baron', logo: '/sponsors/joaillerie-piquemal-baron.png', url: 'https://www.joailleriepiquemalbaron.com/' },
   { name: 'Intermarché Garidech', logo: '/sponsors/intermarche-garidech.png', url: 'https://www.intermarche.com/magasins/11126/garidech-31380/infos-pratiques' },
+  { name: 'Serge Blanco', logo: '/sponsors/serge-blanco.png', url: 'https://www.sergeblanco.com/' },
   { name: 'Subloisirs', logo: '/sponsors/subloisirs.png', url: 'https://subloisirs.com/', dark: true },
   { name: 'Debard Automobiles', logo: '/sponsors/debard-automobiles.png', url: 'https://www.debardautomobiles.com/' },
   { name: 'Turkish Airlines', logo: '/sponsors/turkish-airlines.png', url: 'https://www.turkishairlines.com/fr-fr/' },
   { name: 'Le Bistro de Palmo', logo: '/sponsors/bistro-de-palmo.png', url: 'https://www.bistrodepalmo.com/' },
   { name: 'McDonald’s', logo: '/sponsors/mcdonalds.png', url: 'https://www.mcdonalds.fr/' },
   { name: 'Plyz', logo: '/sponsors/plyz.png', url: 'https://plyz.io/', dark: true },
-  { name: 'Securinfor', logo: '/sponsors/securinfor.png', url: 'https://www.securinfor.fr/' },
   { name: 'Golf de Palmola', logo: '/sponsors/golf-de-palmola.png', url: 'https://www.golfdepalmola.com/' },
   { name: 'NOpTRACK', logo: '/sponsors/noptrack.png' },
   { name: 'Financière Bonicel', slug: 'financiere-bonicel' }, // pas de logo : nom écrit
-  { name: 'Serge Blanco', logo: '/sponsors/serge-blanco.png', url: 'https://www.sergeblanco.com/' },
 ]
 
 // Lien et QR code personnels de la carte d'invitation de chaque sponsor : https://masters-xv.fr/invite/<slug>
