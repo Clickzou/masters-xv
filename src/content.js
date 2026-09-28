@@ -31,6 +31,7 @@ export const SPONSORS = [
   { name: 'Golf de Palmola', logo: '/sponsors/golf-de-palmola.png', url: 'https://www.golfdepalmola.com/' },
   { name: 'NOpTRACK', logo: '/sponsors/noptrack.png' },
   { name: 'Financière Bonicel', slug: 'financiere-bonicel' }, // pas de logo : nom écrit
+  { name: 'Serge Blanco', logo: '/sponsors/serge-blanco.png', url: 'https://www.sergeblanco.com/' },
 ]
 
 // Lien et QR code personnels de la carte d'invitation de chaque sponsor : https://masters-xv.fr/invite/<slug>
