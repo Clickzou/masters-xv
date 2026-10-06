@@ -603,6 +603,7 @@ a.sponsor:hover { border-color: var(--gold); transform: translateY(-2px); }
 .adm-stats div { padding: 16px 18px; background: #fff; border: 1px solid #e3ddd0; border-top: 3px solid var(--gold); }
 .adm-stats span { display: block; font-size: .68rem; font-weight: 600; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
 .adm-stats strong { display: block; margin: 4px 0 2px; font-family: var(--serif-caps); font-size: 1.9rem; color: var(--green); }
+.adm-stats strong.is-over { color: #d4730b; }
 .adm-stats small { font-size: .78rem; color: var(--muted); }
 .adm-filters { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 14px; }
 .adm-filters input, .adm-filters select, .adm-field select, .adm-field textarea { padding: 10px 12px; font: .9rem var(--sans); border: 1px solid #d8d1c1; background: #fff; color: var(--ink); }

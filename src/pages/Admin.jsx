@@ -28,6 +28,7 @@ const cardName = slug => sponsorBySlug(slug)?.name || 'Midi Olympique'
 // Parties d'un sponsor : Partie 1 = représentant + 3 invités (4 sans représentant) ; parties suivantes = 4 invités
 const capacity = (sponsors, slug, no = 1) => (no > 1 || sponsors?.[slug]?.has_representative === false ? 4 : 3)
 const teamsOf = (sponsors, slug) => sponsors?.[slug]?.teams || 1
+const MAX_TEAMS = 20 // parties possibles sur le parcours
 const teamLabel = (slug, no) => (TEAMS[slug] ? `${TEAMS[slug]} · Partie ${no || 1}` : '')
 const TEAMS = Object.fromEntries(SPONSORS.map(sp => [sponsorSlug(sp), sp.name]))
 const inTeam = (invites, slug, no = 1) => invites.filter(r => r.team === slug && (r.team_no || 1) === no && r.status !== 'annule')
@@ -85,11 +86,10 @@ const LISTS = {
     filter: { key: 'participation', all: 'Toutes les participations', options: PARTICIPATION },
     byCard: true,
     stats: (list, { sponsors }) => {
-      const placed = list.filter(r => r.team).length
       const nbTeams = SPONSORS.reduce((n, sp) => n + teamsOf(sponsors, sponsorSlug(sp)), 0)
-      const places = SPONSORS.reduce((n, sp) => n + Array.from({ length: teamsOf(sponsors, sponsorSlug(sp)) }, (_, i) => capacity(sponsors, sponsorSlug(sp), i + 1)).reduce((a, b) => a + b, 0), 0)
       return [
-        ['Parties', `${placed} / ${places}`, `places d’invités occupées · ${nbTeams} parties`],
+        // Parties créées sur le maximum du tournoi, en orange au-delà
+        ['Parties', `${nbTeams} / ${MAX_TEAMS}`, '', nbTeams > MAX_TEAMS],
         ['Réponses', list.length, `${list.filter(r => r.status === 'nouveau').length} à traiter`],
         ['Personnes', list.reduce((n, r) => n + people(r), 0), 'invités + accompagnants'],
         ['Golfeurs', list.filter(r => r.profile === 'golfeur').length, `${list.filter(r => !r.profile).length} profil(s) à définir`],
@@ -370,7 +370,7 @@ export default function Admin() {
         )}
 
         <section className="adm-stats" aria-label={cfg.subtitle}>
-          {stats.map(([label, value, note]) => <div key={label}><span>{label}</span><strong>{value}</strong><small>{note}</small></div>)}
+          {stats.map(([label, value, note, over]) => <div key={label}><span>{label}</span><strong className={over ? 'is-over' : undefined}>{value}</strong>{note && <small>{note}</small>}</div>)}
         </section>
 
         {tab === 'partenaires' && <SponsorsPanel status={data.sponsors} invites={data.invites} onChange={setSponsor} onPlace={(id, changes) => patch(id, changes, 'invites')} />}
